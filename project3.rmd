@@ -11,6 +11,8 @@ library(tidyverse)
 library(car)
 library(knitr)
 library(emmeans)
+library(tidymodels)
+library(readxl)
 ```
 
 ```{r}
