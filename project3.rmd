@@ -22,7 +22,20 @@ tidy_dataset <- dataset %>%
   rename(ID = record_id,
          Flanker_test = tb_flanker_unadj_ss,
          Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
-         Moca_Score = `moca_unadj`)
+         Moca_Score = moca_unadj,
+         Musical_Practice = champs_q17c,
+         Age = gi_age,
+         Education_Level = gi_degree,
+         Second_Language = gi_2ndlang_yn,
+         Track_Activity = pac_track_doing,
+         Paying_Attention = pac_pay_attention,
+         Concentration = pac_concentrate,
+         Indecisiveness = bdi_indecisiveness,
+         Remembering = pac_remember,
+         R_Parahippo_vol = fs_parahpc_vol_r,
+         L_Parahippo_vol = fs_parahpc_vol_l,
+         Est_Tot_intra_cranial_vol = fs_etiv
+         )
 
 tidy_dataset
 ```
