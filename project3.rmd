@@ -1,0 +1,14 @@
+---
+title: "Project 3"
+author: "Sasank Desaraju, Phuc Pham, Natalie Geigel, Christopher Ludka"
+date: "11/18/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(car)
+library(knitr)
+library(emmeans)
+```
