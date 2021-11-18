@@ -12,3 +12,8 @@ library(car)
 library(knitr)
 library(emmeans)
 ```
+
+```{r}
+dataset <- readRDS("./data/group3_data.rds")
+dataset
+```
