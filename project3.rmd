@@ -17,5 +17,10 @@ library(readxl)
 
 ```{r}
 dataset <- readRDS("./data/group3_data.rds")
-dataset
+
+tidy_dataset <- dataset %>%
+  rename(`Patient ID` = `record_id`,
+         )
+
+tidy_dataset
 ```
