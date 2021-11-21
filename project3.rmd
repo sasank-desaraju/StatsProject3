@@ -15,7 +15,7 @@ library(tidymodels)
 library(readxl)
 ```
 
-```{r}
+```{r planned-data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
 tidy_dataset <- dataset %>%
@@ -38,4 +38,9 @@ tidy_dataset <- dataset %>%
          )
 
 tidy_dataset
+```
+
+```{r exploratory-data-carpentry}
+
+
 ```
