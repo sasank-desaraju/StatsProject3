@@ -41,6 +41,31 @@ tidy_dataset
 ```
 
 ```{r exploratory-data-carpentry}
+exp_dataset <- tidy_dataset %>%
+  filter(redcap_event_name == "event_1_arm_1") %>%
+  select(-redcap_event_name) 
+# Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
+
+
+#Model 2: understanding factors as related to cognitive impairment compared to moca scores
+
+ggplot(exp_dataset, aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
+  geom_boxplot()
+
+ggplot(exp_dataset, aes(Remembering,Moca_Score,color = Remembering))+
+  geom_boxplot()
+
+ggplot(exp_dataset, aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
+  geom_boxplot()
+
+ggplot(exp_dataset, aes(Concentration,Moca_Score,color = Concentration))+
+  geom_boxplot()
+
+# If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
+MoCA_dropna <- exp_dataset %>%
+  select(Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score) 
+# %>%
+#   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
 
 ```
