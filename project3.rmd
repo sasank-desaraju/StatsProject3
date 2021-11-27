@@ -15,6 +15,12 @@ library(tidymodels)
 
 ```
 
+#Introduction: 
+
+#A Priori: 
+
+# Scientific Hypotheses (Planned Analysis):
+
 ```{r planned-data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
@@ -36,6 +42,7 @@ tidy_dataset <- dataset %>%
          L_Parahippo_vol = fs_parahpc_vol_l,
          Est_Tot_intra_cranial_vol = fs_etiv
          ) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
          Second_Language = as_factor(Second_Language),
@@ -44,11 +51,89 @@ tidy_dataset <- dataset %>%
          Concentration = as_factor(Concentration),
          Indecisiveness = as_factor(Indecisiveness),
          Remembering = as_factor(Remembering),
-         Moca_Score = as.numeric(Moca_Score))
+         Moca_Score = as.numeric(Moca_Score),
+         Age = as.numeric(Age)
+  )
 
 tidy_dataset
 ```
 
+## Hypothesis 1: The ability to pay attention, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to pay attention in a distracting environment. 
+
+```{r}
+hypo_one_dataset <- tidy_dataset %>%
+  select(ID,
+         Flanker_test,
+         Age,
+         Musical_Practice,
+         Second_Language,
+         Education_Level,
+         Track_Activity
+  )
+  
+
+hypo_one_dataset
+```
+### Statistical Hypothesis:
+
+Ho: Flanker’s test scores will not be significantly different for different behavioral habits, accounting for age and education. 
+
+Ha: Flanker’s test scores will be significantly different for different behavioral 	habits, accounting for age and education. 
+
+### Statistical Model:
+$$\begin{aligned}
+\hat{y}_{Flanker.Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{Track}X_{Track}?
+\end{aligned}$$
+
+### Visualization:
+```{r}
+#Age vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Age,
+                                    y = Flanker_test)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) 
+
+#Musical Practice vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
+                                    color = Musical_Practice)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+
+#Second Language vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
+                                    color = Second_Language)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "green") +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8)
+
+#Education Level vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
+                                    color = Education_Level)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+
+#Ability to Pay Attention vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
+                                    color = Track_Activity)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+```
+### Model Interpretation and Analysis:
+```{r}
+
+Y (Flanker) ~ num1(Age) + fct1(Music) + fct2(Language) + fct3(Education) + fct4(Track) 
+
+```
+
+## Hypothesis 2: The ability to recall from memory, proxied by the NIH Picture Sequence Memory Test, can be explained by the combined effect of relevant behavioral habits, a relevant brain volume, and a self-reported score when accounting for age and education. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The brain volume considered is the parahippocampal volume, known in literature to be important for memory function. The self-reported score asks the subject about their ability to recall items in their day-to-day lives. 
+
+```{r}
+
+
+```
+
+# Scientific Hypotheses (Planned Exploratory Analysis):
 ```{r exploratory-data-carpentry}
 exp_dataset <- tidy_dataset %>%
   filter(redcap_event_name == "event_1_arm_1") %>%
@@ -77,3 +162,7 @@ MoCA_dropna <- exp_dataset %>%
 # %>%
 #   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
 ```
+
+#Unplanned Exploratory Analysis:
+
+#Supplemental Data:
