@@ -121,8 +121,10 @@ ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
 ```
 ### Model Interpretation and Analysis:
 ```{r}
+hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Musical_Practice + Second_Language + Education_Level)
 
-Y (Flanker) ~ num1(Age) + fct1(Music) + fct2(Language) + fct3(Education) + fct4(Track) 
+kable(tidy(hypo1_model), digits = 3)
+kable(tidy(Anova(hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 
 ```
 
