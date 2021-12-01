@@ -43,7 +43,10 @@ tidy_dataset
 ```{r exploratory-data-carpentry}
 exp_dataset <- tidy_dataset %>%
   filter(redcap_event_name == "event_1_arm_1") %>%
-  select(-redcap_event_name) 
+  mutate(Total_PHC_normed = (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol) %>%
+  mutate(Second_Language = replace_na(Second_Language, 0)) %>%  #assigns 0 to subjects who don't speak a second language
+  mutate(Musical_Practice = replace_na(Musical_Practice, 0)) %>%  #assigns 0 to subjects who don't practice an instrument
+  select(-redcap_event_name)
 # Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
 
@@ -68,4 +71,42 @@ MoCA_dropna <- exp_dataset %>%
 # %>%
 #   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
 
+
+
+# Model 1: Brain volume model
+# Picture Sequence ~  Age + Music + PHCleft + PHCright + Language + Education + Remember
+
+ggplot(exp_dataset, aes(Age, Pic_Seq_Mem_Test)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+ggplot(exp_dataset, aes(Musical_Practice, Pic_Seq_Mem_Test)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+ggplot(exp_dataset, aes(Total_PHC_normed, Pic_Seq_Mem_Test)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+ggplot(exp_dataset, aes(Second_Language, Pic_Seq_Mem_Test)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+ggplot(exp_dataset, aes(Education_Level, Pic_Seq_Mem_Test)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+# With Pic_Seq_Mem_Test:
+# Age is neg corr., Music is not corr., PHC is pos corr., Second_Lang is pos corr., Education is slight pos corr.
+
+full_pic_model_no_int <- lm(exp_dataset, formula = Pic_Seq_Mem_Test ~ Age + Musical_Practice + Total_PHC_normed + Second_Language + Education_Level)
+
+tidy(Anova(full_pic_model_no_int))
+glance(full_pic_model_no_int)
+
 ```
+
+
+
+
+
