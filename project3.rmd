@@ -12,8 +12,14 @@ library(car)
 library(knitr)
 library(emmeans)
 library(tidymodels)
-library(readxl)
+
 ```
+
+#Introduction: 
+
+#A Priori: 
+
+# Scientific Hypotheses (Planned Analysis):
 
 ```{r planned-data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
@@ -35,78 +41,140 @@ tidy_dataset <- dataset %>%
          R_Parahippo_vol = fs_parahpc_vol_r,
          L_Parahippo_vol = fs_parahpc_vol_l,
          Est_Tot_intra_cranial_vol = fs_etiv
-         )
+         ) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
+  mutate(Musical_Practice = as_factor(Musical_Practice),
+         Education_Level = as_factor(Education_Level),
+         Second_Language = as_factor(Second_Language),
+         Track_Activity = as_factor(Track_Activity),
+         Paying_Attention = as_factor(Paying_Attention),
+         Concentration = as_factor(Concentration),
+         Indecisiveness = as_factor(Indecisiveness),
+         Remembering = as_factor(Remembering),
+         Moca_Score = as.numeric(Moca_Score),
+         Age = as.numeric(Age)
+  )
 
 tidy_dataset
 ```
 
+## Hypothesis 1: The ability to pay attention, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to pay attention in a distracting environment. 
+
+```{r}
+hypo_one_dataset <- tidy_dataset %>%
+  select(ID,
+         Flanker_test,
+         Age,
+         Musical_Practice,
+         Second_Language,
+         Education_Level,
+         Track_Activity
+  )
+  
+
+hypo_one_dataset
+```
+### Statistical Hypothesis:
+
+Ho: Flanker’s test scores will not be significantly different for different behavioral habits, accounting for age and education. 
+
+Ha: Flanker’s test scores will be significantly different for different behavioral 	habits, accounting for age and education. 
+
+### Statistical Model:
+$$\begin{aligned}
+\hat{y}_{Flanker.Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{Track}X_{Track}?
+\end{aligned}$$
+
+### Visualization:
+```{r}
+#Age vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Age,
+                                    y = Flanker_test)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) 
+
+#Musical Practice vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
+                                    color = Musical_Practice)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+
+#Second Language vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
+                                    color = Second_Language)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "green") +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8)
+
+#Education Level vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
+                                    color = Education_Level)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+
+#Ability to Pay Attention vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
+                                    color = Track_Activity)) +
+  geom_boxplot() +
+  stat_summary(fun.data = mean_se, color = "black")
+```
+### Model Interpretation and Analysis:
+```{r}
+hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Musical_Practice + Second_Language + Education_Level)
+
+kable(tidy(hypo1_model), digits = 3)
+kable(tidy(Anova(hypo1_model, type = 2, alpha = 0.05)), digits = 3)
+
+```
+
+## Hypothesis 2: The ability to recall from memory, proxied by the NIH Picture Sequence Memory Test, can be explained by the combined effect of relevant behavioral habits, a relevant brain volume, and a self-reported score when accounting for age and education. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The brain volume considered is the parahippocampal volume, known in literature to be important for memory function. The self-reported score asks the subject about their ability to recall items in their day-to-day lives. 
+
+```{r}
+
+
+```
+
+# Scientific Hypotheses (Planned Exploratory Analysis):
 ```{r exploratory-data-carpentry}
 exp_dataset <- tidy_dataset %>%
   filter(redcap_event_name == "event_1_arm_1") %>%
-  mutate(Total_PHC_normed = (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol) %>%
-  mutate(Second_Language = replace_na(Second_Language, 0)) %>%  #assigns 0 to subjects who don't speak a second language
-  mutate(Musical_Practice = replace_na(Musical_Practice, 0)) %>%  #assigns 0 to subjects who don't practice an instrument
-  select(-redcap_event_name)
+  select(-redcap_event_name) 
 # Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
 
 
 #Model 2: understanding factors as related to cognitive impairment compared to moca scores
 
-ggplot(exp_dataset, aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
-  geom_boxplot()
+ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5)
 
-ggplot(exp_dataset, aes(Remembering,Moca_Score,color = Remembering))+
-  geom_boxplot()
+ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5)
 
-ggplot(exp_dataset, aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
-  geom_boxplot()
+ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5)
 
-ggplot(exp_dataset, aes(Concentration,Moca_Score,color = Concentration))+
-  geom_boxplot()
+ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Score,color = Concentration))+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5)
 
 # If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
 MoCA_dropna <- exp_dataset %>%
-  select(Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score) 
-# %>%
-#   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
+  select(Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score)  %>%
+  drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
+# Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
-
-
-# Model 1: Brain volume model
-# Picture Sequence ~  Age + Music + PHCleft + PHCright + Language + Education + Remember
-
-ggplot(exp_dataset, aes(Age, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
-
-ggplot(exp_dataset, aes(Musical_Practice, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
-
-ggplot(exp_dataset, aes(Total_PHC_normed, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
-
-ggplot(exp_dataset, aes(Second_Language, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
-
-ggplot(exp_dataset, aes(Education_Level, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
-
-# With Pic_Seq_Mem_Test:
-# Age is neg corr., Music is not corr., PHC is pos corr., Second_Lang is pos corr., Education is slight pos corr.
-
-full_pic_model_no_int <- lm(exp_dataset, formula = Pic_Seq_Mem_Test ~ Age + Musical_Practice + Total_PHC_normed + Second_Language + Education_Level)
-
-tidy(Anova(full_pic_model_no_int))
-glance(full_pic_model_no_int)
-
+Mocamod <- lm(MoCA_dropna,
+              formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
+glance(Mocamod)
+tidy(Mocamod)
+Anova(Mocamod)
 ```
 
+#Unplanned Exploratory Analysis:
 
-
-
-
+#Supplemental Data:
