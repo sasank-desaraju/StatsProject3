@@ -177,26 +177,30 @@ Anova(Mocamod)
 
 
 
+# Sasank
 # Model 1: Brain volume model
 # Picture Sequence ~  Age + Music + PHCleft + PHCright + Language + Education + Remember
 
-ggplot(exp_dataset, aes(Age, Pic_Seq_Mem_Test)) +
+volume_dataset <- exp_dataset %>%
+  mutate(Tot_PHC_normed = (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol)
+
+ggplot(volume_dataset, aes(Age, Pic_Seq_Mem_Test)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(exp_dataset, aes(Musical_Practice, Pic_Seq_Mem_Test)) +
+ggplot(volume_dataset, aes(Musical_Practice, Pic_Seq_Mem_Test)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(exp_dataset, aes(Total_PHC_normed, Pic_Seq_Mem_Test)) +
+ggplot(volume_dataset, aes(Tot_PHC_normed, Pic_Seq_Mem_Test)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(exp_dataset, aes(Second_Language, Pic_Seq_Mem_Test)) +
+ggplot(volume_dataset, aes(Second_Language, Pic_Seq_Mem_Test)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(exp_dataset, aes(Education_Level, Pic_Seq_Mem_Test)) +
+ggplot(volume_dataset, aes(Education_Level, Pic_Seq_Mem_Test)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
