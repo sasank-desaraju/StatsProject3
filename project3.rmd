@@ -42,19 +42,20 @@ tidy_dataset <- dataset %>%
          L_Parahippo_vol = fs_parahpc_vol_l,
          Est_Tot_intra_cranial_vol = fs_etiv
          ) %>%
-  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
+  mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , Musical_Practice)) %>% 
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
          Second_Language = as_factor(Second_Language),
-         Track_Activity = as_factor(Track_Activity),
          Paying_Attention = as_factor(Paying_Attention),
+         Track_Activity = as_factor(Track_Activity),
          Concentration = as_factor(Concentration),
          Indecisiveness = as_factor(Indecisiveness),
          Remembering = as_factor(Remembering),
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   )
-
+dataset
 tidy_dataset
 ```
 
@@ -121,7 +122,8 @@ ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
 ```
 ### Model Interpretation and Analysis:
 ```{r}
-hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Musical_Practice + Second_Language + Education_Level)
+hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level +  )
+
 
 kable(tidy(hypo1_model), digits = 3)
 kable(tidy(Anova(hypo1_model, type = 2, alpha = 0.05)), digits = 3)
@@ -270,7 +272,13 @@ ggplot(exp_dataset, aes(Concentration,Moca_Score,color = Concentration))+
   geom_boxplot()
 # If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
 MoCA_dropna <- exp_dataset %>%
-  select(Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score) 
+  select(Flanker_test, Pic_Seq_Mem_Test,Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score) %>%
+  filter(Moca_Score < 25)
+
+Moca_normal <- exp_dataset %>%
+  select(Flanker_test, Pic_Seq_Mem_Test,Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score) %>%
+  filter(Moca_Score >= 25)
+
 # %>%
 #   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
 ```
