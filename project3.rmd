@@ -173,44 +173,104 @@ Mocamod <- lm(MoCA_dropna,
 glance(Mocamod)
 tidy(Mocamod)
 Anova(Mocamod)
+```
 
 
-
+```{r volume-basic-visualization}
+# Visualize factors and check residuals
+# TODO: add outlier checking to basic data
 
 # Sasank
 # Model 1: Brain volume model
 # Picture Sequence ~  Age + Music + PHCleft + PHCright + Language + Education + Remember
 
+# Musical practice is a number here. SD thinks it makes sense since it plots how much people practice
 volume_dataset <- exp_dataset %>%
-  mutate(Tot_PHC_normed = (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol)
+  rename(Music = Musical_Practice,
+         Pic = Pic_Seq_Mem_Test,
+         Education = Education_Level,
+         Sec_Lang = Second_Language,
+         R_PHC = R_Parahippo_vol,
+         L_PHC = L_Parahippo_vol,
+         Tot_Vol = Est_Tot_intra_cranial_vol) %>%
+  mutate(Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
+  mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
+  
 
-ggplot(volume_dataset, aes(Age, Pic_Seq_Mem_Test)) +
+# Age
+ggplot(volume_dataset, aes(Age, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(volume_dataset, aes(Musical_Practice, Pic_Seq_Mem_Test)) +
+kable(tidy(lm(volume_dataset, formula = Pic ~ Age)),
+      caption = 'Age on Memory')
+
+
+# Music
+ggplot(volume_dataset, aes(Music, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(volume_dataset, aes(Tot_PHC_normed, Pic_Seq_Mem_Test)) +
+kable(tidy(lm(volume_dataset, formula = Pic ~ Music)),
+      caption = 'Musical Practice on Memory')
+
+
+# PHC volume
+ggplot(volume_dataset, aes(Tot_PHC_normed, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-ggplot(volume_dataset, aes(Second_Language, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+kable(tidy(lm(volume_dataset, formula = Pic ~ Tot_PHC_normed)),
+      caption = 'PHC Volume on Memory')
 
-ggplot(volume_dataset, aes(Education_Level, Pic_Seq_Mem_Test)) +
-  geom_jitter() +
-  geom_smooth(method = lm , formula = y ~ x, se = FALSE)
 
-# With Pic_Seq_Mem_Test:
+# Second Language
+ggplot(volume_dataset, aes(Sec_Lang, Pic)) +
+  geom_boxplot() +
+  geom_jitter(height = 0)
+  #geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+
+kable(tidy(lm(volume_dataset, formula = Pic ~ Sec_Lang)),
+      caption = 'Second Language on Memory')
+
+
+# Education
+ggplot(volume_dataset, aes(Education, Pic)) +
+  geom_boxplot() +
+  geom_jitter(height = 0)
+  #geom_smooth(method = lm , formula = y ~ x, se = FALSE)
+  
+  kable(tidy(lm(volume_dataset, formula = Pic ~ Education)),
+      caption = 'Education on Memory')
+
+# With Pic:
 # Age is neg corr., Music is not corr., PHC is pos corr., Second_Lang is pos corr., Education is slight pos corr.
+```
+
+```{r volume-model-no-ints}
+full_vol_model_no_int <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education)
+
+tidy(Anova(full_vol_model_no_int))
+glance(full_vol_model_no_int)
+```
+
+```{r volume-models-ints}
+# Age, PHC, Second Language are significant by themselves. What kind of interactions should we include?
+# Maybe second order between all three? Maybe we should do second order between all 5??
+# Let's do second order between all three first?
+
+vol_int_1 <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
+
+tidy(Anova(vol_int_1))
+glance(vol_int_1)
+
+
+vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
 
 full_pic_model_no_int <- lm(volume_dataset, formula = Pic_Seq_Mem_Test ~ Age + Musical_Practice + Tot_PHC_normed + Second_Language + Education_Level)
+tidy(Anova(vol_int_2))
+glance(vol_int_2)
 
-tidy(Anova(full_pic_model_no_int))
-glance(full_pic_model_no_int)
 ```
 
 #Unplanned Exploratory Analysis:
