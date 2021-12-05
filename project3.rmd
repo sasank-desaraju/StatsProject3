@@ -43,7 +43,8 @@ tidy_dataset <- dataset %>%
          Est_Tot_intra_cranial_vol = fs_etiv
          ) %>%
   mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
-  mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , Musical_Practice)) %>% 
+  mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , as.numeric(Musical_Practice))) %>% 
+  # mutate(Musical_Practice = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
          Second_Language = as_factor(Second_Language),
@@ -93,40 +94,115 @@ $$\begin{aligned}
 ggplot(data = hypo_one_dataset, aes(x = Age,
                                     y = Flanker_test)) +
   geom_point() +
-  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) 
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) +
+  xlab("Age") +
+  ylab("Flanker's Test Unadjusted Score") + 
+  labs(title = "Age vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 
 #Musical Practice vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
                                     color = Musical_Practice)) +
-  geom_boxplot() +
-  stat_summary(fun.data = mean_se, color = "black")
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Musical Practice (Total Hrs per Week") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Musical Practice vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 
 #Second Language vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
                                     color = Second_Language)) +
-  geom_boxplot() +
+  geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "green") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8)
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  xlab("Second Language(s)") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Second Language(s) vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 
 #Education Level vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
                                     color = Education_Level)) +
-  geom_boxplot() +
-  stat_summary(fun.data = mean_se, color = "black")
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Highest Academic Degree") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Highest Academic Degree vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 
 #Ability to Pay Attention vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
                                     color = Track_Activity)) +
-  geom_boxplot() +
-  stat_summary(fun.data = mean_se, color = "black")
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Ability to Pay Attention") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Ability to Pay Attention vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 ```
 ### Model Interpretation and Analysis:
 ```{r}
-hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level +  )
+#Model Construction
+hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
+hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Musical_Practice + Age + Second_Language + Education_Level)
 
+#Analysis and Comparison
+kable(tidy(hypo1_model_1), digits = 3)
+kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
+AIC(hypo1_model_1, hypo1_model_2)
+```
 
-kable(tidy(hypo1_model), digits = 3)
-kable(tidy(Anova(hypo1_model, type = 2, alpha = 0.05)), digits = 3)
+```{r}
+# Use augment to add fitted values and residuals to model data
+hypo1_model_2_aug <- augment(hypo1_model_2)
+
+# Plot the residuals against the values fitted by the model.
+ggplot(hypo1_model_2_aug, aes(.fitted, .resid))+
+  geom_point()
+
+# Plot the studentized residuals against the fitted values.
+ggplot(hypo1_model_2_aug, aes(.fitted, .std.resid))+
+  geom_point()+
+  geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
+  geom_smooth(method=lm, formula = `y` ~ `x`)+
+  geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)
+
+# QQ Plot
+ggplot(hypo1_model_2_aug, aes(sample=.std.resid))+
+  stat_qq()+
+  stat_qq_line()+
+  geom_abline(slope=1, intercept=0, linetype=2)
+
+hat_avg_model_2 = (4+1)/nrow(hypo1_model_2_aug)
+
+# look at resid vs hat values
+# hypo1_model_2_aug %>% 
+#   pivot_longer(cols = c(.std.resid, .resid)) %>%
+#   ggplot(aes(.hat, value))+
+#   facet_wrap(vars(name))+
+#   geom_point()+
+#   # Line marking average hat value
+#   geom_vline(xintercept = hat_avg_model_2, linetype = 2)+
+#   # Line marking 2*average hat value
+#   geom_vline(xintercept = 2 * hat_avg_model_2, linetype = 2, color="orange")+
+#   # Line marking 3*average hat value
+#   geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
+#   theme_bw()
+
+#Cooks Distance:
+hypo1_model_2_aug %>% 
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = hat_avg_model_2, linetype = 2)+
+  geom_vline(xintercept = 2 * hat_avg_model_2, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+    geom_text(aes(label=if_else(.hat>2*hat_avg_model_2 |.cooksd>=(2/sqrt(nrow(hypo1_model_2_aug))),
+                              paste0("(",Musical_Practice, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, size=4)+
+  theme_bw()
+
+hypo1_model_2_aug
 
 ```
 
