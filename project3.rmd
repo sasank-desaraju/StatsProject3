@@ -1,6 +1,6 @@
 ---
 title: "Project 3"
-author: "Sasank Desaraju, Phuc Pham, Natalie Geigel, Christopher Ludka"
+author: "Sasank Desaraju, Phuc Pham, Natalie Geigel, Christopher Ludtka"
 date: "11/18/2021"
 output: pdf_document
 ---
@@ -45,6 +45,7 @@ tidy_dataset <- dataset %>%
   mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
   mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , as.numeric(Musical_Practice))) %>% 
   # mutate(Musical_Practice = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
+  mutate(Remembering = if_else(condition = is.na(Remembering), 0 , as.numeric(Remembering))) %>%
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
          Second_Language = as_factor(Second_Language),
@@ -252,10 +253,10 @@ ggplot(data = hypo_two_dataset, aes(x = Age,
 
 #Musical Practice vs. Picture Sequence Memory Test
 ggplot(data = hypo_two_dataset %>% filter(!is.na(Musical_Practice)), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,
-                                    color=factor(Musical_Practice,labels=c("Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")))) +
+                                    color=factor(Musical_Practice,labels=c("Not Answered", "Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")))) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "black") +
-  scale_x_discrete(labels=c("Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")) +
+  scale_x_discrete(labels=c("Not Answered","Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")) +
   xlab("Musical Practice") +
   ylab("Picture Sequence Memory Test Score") +
   labs(color='Musical Practice') +
@@ -296,7 +297,7 @@ ggplot(data = hypo_two_dataset %>% filter(!is.na(Remembering)), aes(x = Remember
                                     color = Remembering)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "black") +
-  scale_x_discrete(labels=c("Not at all","A little bit","Somewhat","Quite a bit","Very much")) +
+  scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
   xlab("Ability to Remember Things as Easily as Usual") +
   ylab("Picture Sequence Memory Test Score") +
   theme_bw()
@@ -312,23 +313,84 @@ ggplot(data = hypo_two_dataset %>% filter(!is.na(Remembering)), aes(x = Remember
 hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
 kable(tidy(hypo2_model), digits = 3)
 kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
+
+# Create alternative model with non statistically significant variables removed from model, for comparison with original model
+hypo2_model_2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol )
+kable(tidy(hypo2_model_2), digits = 3)
+kable(tidy(Anova(hypo2_model_2, type = 2, alpha = 0.05)), digits = 3)
+  
+AIC(hypo2_model, hypo2_model_2)
+# Original model has lower AIC value, therefore is a 'better' model according to this measure
+
 ```
 ```{r}
 hypo2_model_aug <- augment(hypo2_model)
 
-#Hypothesis Two QQ plot
-hypo2_model_aug%>%
-    ggplot(aes(sample= .std.resid))+
-  stat_qq()+
-  stat_qq_line()+
-   #title
+#Hypothesis Two Residuals vs. Fitted Values plot
+ggplot(hypo2_model_aug, aes(.fitted, .resid)) +
+  geom_point() +  
+  geom_smooth(method=lm, formula = `y` ~ `x`) +
   labs(
-title = "QQ Plot showing Distribution of Standard
-Residual Values")+
-
+title = "Residuals vs. Fitted Values for Hypothesis Two")+
 theme(plot.title = element_text(size = rel(1),
                                 hjust = 0.5))
+
+#Hypothesis Two QQ plot
+hypo2_model_aug %>%
+    ggplot(aes(sample= .std.resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(
+title = "QQ Plot showing Distribution of Standard
+Residual Values for Hypothesis Two") +
+ylab("Sample") +
+xlab("Theoretical") + 
+theme(plot.title = element_text(size = rel(1),
+                                hjust = 0.5))
+
+# TODO: delete commented out part below
+# hypo2_model_mean_hat <-
+#   summarise(hypo2_model_aug, "mean_hat"=mean(.hat))
+# # 0.161616
+
+hypo2_model_ave_hat = (6+1)/nrow(hypo2_model_aug)
+#hat_ave = (k+1)/n
+    #k = number of regressors, = 6 here
+    #n = number of samples
+
+hypo2_model_aug %>% 
+  ggplot( aes( y = .std.resid,
+               x = .hat, size = .cooksd )) +
+  geom_point(shape = 1) +
+  geom_vline(xintercept = hypo2_model_ave_hat, 
+             linetype = 2) +
+  geom_vline(xintercept = 2 *	hypo2_model_ave_hat,
+             linetype = 2, color="orange") +
+  geom_vline(xintercept = 3 * hypo2_model_ave_hat,
+             linetype = 2, color="red") +
+  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
+                              #TODO : alternatively >= 4/nrow(hypo2_model_aug)
+str_c("(", `Pic_Seq_Mem_Test`, ", ", `Parahippo_vol`,")"), "")),
+nudge_y = 0.2, size=3, nudge_x = 0.035, color = "red") +
+   #title
+  labs(
+title = "Cooks Distance for
+Hypothesis Two Model")+
+theme(plot.title = element_text(size = rel(1), hjust = 0.5))
+
 ```
+
+```{r}
+#Post-hoc
+
+hypo2_emm <- emmeans(hypo2_model, ~ Age | Education_Level | Musical_Practice | Second_Language | Parahippo_vol | Remembering)
+
+contrast(hypo2_emm, by = NULL) %>%
+  tidy()
+# TODO: clean up output or delete
+
+```
+
 
 
 # Scientific Hypotheses (Planned Exploratory Analysis):
