@@ -267,10 +267,34 @@ glance(vol_int_1)
 
 vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
 
-full_pic_model_no_int <- lm(volume_dataset, formula = Pic_Seq_Mem_Test ~ Age + Musical_Practice + Tot_PHC_normed + Second_Language + Education_Level)
 tidy(Anova(vol_int_2))
 glance(vol_int_2)
 
+vol_int_3 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+
+tidy(Anova(vol_int_3))
+glance(vol_int_3)
+
+vol_int_4 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang + Age:Tot_PHC_normed:Education)
+
+tidy(Anova(vol_int_4))
+glance(vol_int_4)
+
+vol_int_5 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+
+tidy(Anova(vol_int_5))
+glance(vol_int_5)
+
+vol_int_6 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Sec_Lang)
+
+tidy(Anova(vol_int_6))
+glance(vol_int_6)
+
+```
+
+```{r volume-outliers}
+# selecting full_vol_model_no_int because it has the lowest AIC of the ones we found.
+# Adding in the 2nd order interaction terms of the 
 ```
 
 #Unplanned Exploratory Analysis:
