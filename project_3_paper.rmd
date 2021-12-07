@@ -450,3 +450,17 @@ hypo1_model_3_aug %>%
 ## Natalie stuff
 
 ## Sasank stuff
+
+*Planned exploratory analysis*
+
+### Data Visualization
+
+### Initial Model Analysis
+
+### Residual and Outlier Analysis
+
+### Subsequent models
+
+### Discussion
+
+*Unplanned exploratory analysis*
