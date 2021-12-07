@@ -15,6 +15,10 @@ library(tidymodels)
 
 ```
 
+#Introduction: 
+
+#A Priori: 
+
 ```{r copy-of-data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
@@ -48,15 +52,7 @@ tidy_dataset <- dataset %>%
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   )
-
-tidy_dataset
 ```
-
-Title.
-
-#Introduction: 
-
-#A Priori: 
 
 # Planned hypotheses
 
@@ -100,8 +96,6 @@ tidy_dataset <- dataset %>%
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   )
-dataset
-tidy_dataset
 ```
 
 ## Hypothesis 1: The ability to keep track of current tasks, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to keep track of current tasks in a distracting environment. 
@@ -237,6 +231,7 @@ Model 3 (Age & Education Removed): Anova (type 2) test
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
 
+* The full model (model 1) has the lowest AIC score; therefore it is conclusive to state it as the best model thus far. 
 ```{r}
 #Model Construction
 hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Education_Level)
@@ -247,38 +242,38 @@ kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
 AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3)
 ```
 
-Fitted vs. Residual Values Plot: 
-* 
-```{r}
-# Use augment to add fitted values and residuals to model data
-hypo1_model_3_aug <- augment(hypo1_model_3)
-
-# Plot the residuals against the values fitted by the model.
-ggplot(hypo1_model_3_aug, aes(.fitted, .resid))+
-  geom_point()
-```
 
 ```{r}
 # Plot the std. residuals against the fitted values.
 ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
   geom_point()+
-  geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
+  #geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
   geom_smooth(method=lm, formula = `y` ~ `x`)+
-  geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)
+  geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)+
+  labs(title = "Residuals vs. Fitted Values for Hypothesis One")+
+  theme(plot.title = element_text(size = rel(1),
+                                hjust = 0.5))
 ```
+Residuals vs. Fitted Values Plot:
+* Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.
 
-QQ Plot:
-* Observing the QQ plot shows that the model most closely follows a Gaussian/normal distribution with the left hand tail tilting up while the right hand tail is tilting down. However, there is variation as the points at the tails are scewing away from the linear line.
 
 ```{r}
 # QQ Plot
 ggplot(hypo1_model_3_aug, aes(sample=.std.resid))+
   stat_qq(aes(color = "red"), show.legend = F)+
-  stat_qq_line(aes(color = "blue"), show.legend = F)
+  stat_qq_line(aes(color = "blue"), show.legend = F) +
+  labs(title = "QQ Plot showing Distribution of Standard
+Residual Values for Hypothesis One") +
+ylab("Sample") +
+xlab("Theoretical") + 
+theme(plot.title = element_text(size = rel(1),
+                                hjust = 0.5))
 
-hat_avg_model_3 = (2+1)/nrow(hypo1_model_1_aug)
+hat_avg_model_3 = (2+1)/nrow(hypo1_model_3_aug) 
 ```
-
+QQ Plot:
+* Observing the QQ plot shows that the model most closely follows a Chi-squared distribution with the left and right hand tails tilting upwards. However, there is variation as the points at the tails are scewing away from the linear line.
 
 ```{r}
 #Cooks Distance:
@@ -291,8 +286,16 @@ hypo1_model_3_aug %>%
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
     geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
                               paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
-  theme_bw()
+  labs(title = "Cooks Distance for Hypothesis One Model")+
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1), hjust = 0.5)) 
+  
 ```
+Cooks Distance Plot: 
+* Using the general rule of thumb for highlighting outliers of 3*(average Cooks Distance), we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+
+### Discussion:
+
 
 ## Chris stuff
 
