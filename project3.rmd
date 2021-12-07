@@ -44,7 +44,7 @@ tidy_dataset <- dataset %>%
          ) %>%
   mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
   mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , as.numeric(Musical_Practice))) %>% 
-  mutate(Musical_Practice = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
+  mutate(Track_Activity = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
   mutate(Remembering = if_else(condition = is.na(Remembering), 0 , as.numeric(Remembering))) %>%
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
@@ -145,13 +145,14 @@ ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
 ### Model Interpretation and Analysis:
 ```{r}
 #Model Construction
-hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
-hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Musical_Practice + Age + Second_Language + Education_Level)
+hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Second_Language + Education_Level + Musical_Practice)
+hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
+hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Musical_Practice)
 
 #Analysis and Comparison
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
-AIC(hypo1_model_1, hypo1_model_2)
+AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3)
 ```
 
 ```{r}
