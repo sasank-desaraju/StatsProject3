@@ -1,0 +1,326 @@
+---
+title: "Project3_copy"
+author: "Natalie Geigel"
+date: "12/6/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE,echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(car)
+library(knitr)
+library(emmeans)
+library(tidymodels)
+
+```
+
+
+```{r planned-data-carpentry, echo = FALSE}
+dataset <- readRDS("./data/group3_data.rds")
+
+tidy_dataset <- dataset %>%
+  rename(ID = record_id,
+         Flanker_test = tb_flanker_unadj_ss,
+         Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
+         Moca_Score = moca_unadj,
+         Musical_Practice = champs_q17c,
+         Age = gi_age,
+         Education_Level = gi_degree,
+         Second_Language = gi_2ndlang_yn,
+         Track_Activity = pac_track_doing,
+         Paying_Attention = pac_pay_attention,
+         Concentration = pac_concentrate,
+         Indecisiveness = bdi_indecisiveness,
+         Remembering = pac_remember,
+         R_Parahippo_vol = fs_parahpc_vol_r,
+         L_Parahippo_vol = fs_parahpc_vol_l,
+         Est_Tot_intra_cranial_vol = fs_etiv
+         ) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
+  mutate(Musical_Practice = as_factor(Musical_Practice),
+         Education_Level = as_factor(Education_Level),
+         Second_Language = as_factor(Second_Language),
+         Track_Activity = as_factor(Track_Activity),
+         Paying_Attention = as_factor(Paying_Attention),
+         Concentration = as_factor(Concentration),
+         Indecisiveness = as_factor(Indecisiveness),
+         Remembering = as_factor(Remembering),
+         Moca_Score = as.numeric(Moca_Score),
+         Age = as.numeric(Age)
+  )
+
+```
+
+
+
+# Exploratory Analyses: 
+##Question 1
+Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, such as ability to pay attention, concentrate, remember things, and indecisiveness? Analysis will be done on various self reported scores to see if a relationship exists.
+
+\textbf{Self-reported Score Meanings:}
+
+* Paying Attention: lower numbers indicate difficulty paying attention and keeping track of tasks while higher numbers indicate high ability to pay attention. The range goes from 1-5. 
+
+* Remembering: lower numbers indicate difficulty remembering things while higher numbers indicate things are easy to remember.The range goes from 1-5. 
+
+* Concentration: lower numbers indicate difficulty concentrating while higher numbers indicate concentration is as easy as usual. The range goes from 1-5. 
+
+* Indecisiveness: lower numbers indicate decisions have been as easy to make as normal and higher numbers indicate high indecisiveness. It scales from 0-3.
+
+```{r exploratory-data-carpentry,echo = FALSE}
+exp_dataset <- tidy_dataset %>%
+  filter(redcap_event_name == "event_1_arm_1") %>%
+  select(-redcap_event_name) 
+# Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
+
+  Colorcols <- c("1" = "#D5DCE8", "2" = "#A9C3E5", "3" = "#1F94E6", "4" = "#3569AC","5" = "#0029AE")
+  Colorcols2 <-c("0" = "#D5DCE8", "1" = "#A9C3E5", "2" = "#1F94E6","3" = "#3569AC")
+
+#Model 2: understanding factors as related to cognitive impairment compared to moca scores
+
+ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
+  #scale_color_manual(values = Colorcols)+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5, height = 0)+
+  ggtitle("Moca Scores vs Attention")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
+  #scale_color_manual(values = Colorcols)+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5, height = 0)+
+  ggtitle("Moca Scores vs Memory")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
+  #scale_color_manual(values = Colorcols2)+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5, height = 0)+
+  ggtitle("Moca Scores vs Indecisiveness")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Score,color = Concentration))+
+  #scale_color_manual(values = Colorcols)+
+  geom_boxplot()+
+  geom_jitter(alpha=0.5, height = 0)+
+  ggtitle("Moca Scores vs Concentration")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+```
+
+\emph{Question 1 Figure Observations:}
+In all 4 of these figures, it is evident there is not a lot of data available. Many of the self-reported scores were simply left blank. This is likely to  greatly impact the model created. General observations from the figures would indicate higher ability to concentrate and remember result in higher Moca Scores in the normal range above 25, with lower concentration and memory below 25 implying potential cognitive impairment. Still, a model needs to be created and tested to see if there is a relationship at all.
+
+
+```{r pressure, echo=FALSE}
+# If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
+MoCA_dropna <- exp_dataset %>%
+  select(Paying_Attention,Remembering,Indecisiveness,Concentration,Moca_Score)  
+# %>%
+#   drop_na(Paying_Attention,Remembering,Indecisiveness,Concentration)
+# Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
+
+Mocamod <- lm(MoCA_dropna,
+              formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
+kable(glance(Mocamod))
+kable(Anova(Mocamod))
+kable(tidy(Mocamod))
+
+```
+\emph{Model 1 Interpretation:}
+Due to all the missing values, only 27 observations ended up contributing to the model itself. The only category that had any statistical significance according to the Anova was paying attention, indicating that the one of the means for paying attention may be statistically different. When looking at the t-test, however, none of the coefficients are significant so this model cannot be used to make any real conclusions. It is important to note that the lack of objectiveness in self-reported scores would have led to questions about the validity of conclusions if there had not also been a lack of responses. This leads to expanding to further exploration using objective, numerical scores from Flanker's test (testing attention and concentration) and the Picture Sequence Memory Test (testing episodic memory) and their relationship to Moca Scores. This analysis will be shown later in the report.
+
+
+# Expanded Exploratory Analyses: Question 1 continued
+It would still be interesting to understand if different scores for memory, attention and concentration, which are impacted by Mild Cognitive Impairment (MCI), have an impact on Moca scores. This time, we will use Flanker's Test and the Picture Sequence Memory Test to see if these factors have an impact on Moca scores, which can implicate MCI if the score is below 25. However, Age can also be a confounding factor on memory and attention and potentially Moca scores as well, so it will be included in this model.
+
+```{r exploratory-data-carpentry-expansion,echo = FALSE}
+
+#Model 1 Expanded: understanding factors as related to cognitive impairment compared to moca scores
+
+Moca_unplanned <- exp_dataset %>%
+  select(ID,Flanker_test,Pic_Seq_Mem_Test,Moca_Score,Age) 
+
+ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
+  geom_point()+
+  geom_smooth(method = lm, formula = y~x)+
+  ggtitle("Moca Scores vs Age")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_Score))+
+  geom_point()+
+  geom_smooth(method = lm, formula = y~x)+
+  ggtitle("Flanker's Test vs Moca Scores")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Test,Moca_Score))+
+  geom_point()+
+  geom_smooth(method = lm, formula = y~x)+
+  ggtitle("Picture Memory Test vs Moca Scores")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Age), aes(Age,Pic_Seq_Mem_Test))+
+  geom_point()+
+  geom_smooth(method = lm, formula = y~x)+
+  ggtitle("Age vs Memory Scores")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(drop_na(Moca_unplanned,Flanker_test, Age), aes(Age,Flanker_test))+
+  geom_point()+
+  geom_smooth(method = lm, formula = y~x)+
+  ggtitle("Age vs Flanker's Test")+
+  theme_bw()+
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+```
+
+\emph{Expanded Analysis Question 1 Figure Observations:}
+In each figure, there seems to be general trends visible. Moca scores appear to decrease with age and increase with higher Flanker's and Picture Sequence Memory Tests. Flanker's Test and Picture Sequence Memory Test scores both decrease with increasing age, indicating that we should check for interactions in the model analyses or if it can be left out since every score decreases with age.
+
+```{r Moca Unplanned Models, echo = FALSE}
+#No age
+Moca_unplanned_mod <- lm(Moca_unplanned,
+                         formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
+kable(Anova(Moca_unplanned_mod))
+kable(tidy(Moca_unplanned_mod))
+kable(glance(Moca_unplanned_mod))
+
+
+```
+
+\emph{Model Excluding Age Interpretation:}
+This model shows Flanker's Test scores, which are proxy for attention, to insignificantly affect Moca Scores according to the Anova table. The Picture Sequence Memory Test, however, does show a significant impact in predicting Moca scores. Increased memory test scores correlate with increased moca scores, which makes sense as better memory and higher moca scores implies normal cognition as opposed to impaired cognition.
+
+
+```{r Age Mod, echo=FALSE}
+#Age Model, No interactions
+Moca_unplanned_agemod <- lm(Moca_unplanned,
+                         formula = Moca_Score ~ Age + Flanker_test + Pic_Seq_Mem_Test)
+kable(Anova(Moca_unplanned_agemod))
+kable(tidy(Moca_unplanned_agemod))
+kable(glance(Moca_unplanned_agemod))
+
+```
+\emph{Model Including Age Interpretation:}
+This model includes age to see if it also factors into predicting moca scores. According to the Anova table, neither Age nor Flanker's test scores significantly affect or change with Moca scores. As with the previous model, it shows the Picture Sequence Memory test scores increase with Moca scores.
+
+
+```{r Age Interactions Mod,echo=FALSE}
+#Age Model, Interactions
+Moca_unplanned_ageintmod <- lm(Moca_unplanned,
+                         formula = Moca_Score ~ Age + Flanker_test + 
+                           Pic_Seq_Mem_Test + Age:Flanker_test + Age:Pic_Seq_Mem_Test)
+kable(Anova(Moca_unplanned_ageintmod))
+kable(tidy(Moca_unplanned_ageintmod))
+kable(glance(Moca_unplanned_ageintmod))
+
+```
+\emph{Moca Model Including Age and Interactions Interpretation:}
+This model includes interactions with age to see if it also factors into predicting moca scores. According to the Anova table, age does not interact with the other predictors and actually renders the one significant lower order relative insignificant as well.
+
+```{r Compare Mod,echo=FALSE}
+
+kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
+```
+
+\emph{Moca Model Comparisons:}
+All of the models have similar AIC values, however, the one with the lowest AIC is the model that excluded age. This model will be used to base the conclusions on. Given that, we can conclude that Moca scores decrease with decreasing memory performance.
+
+
+
+
+
