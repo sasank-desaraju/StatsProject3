@@ -23,194 +23,6 @@ Title.
 
 # Planned hypotheses
 
-## Chris stuff
-
-## Hypothesis 2: The ability to recall from memory, proxied by the NIH Picture Sequence Memory Test, can be explained by the combined effect of relevant behavioral habits, a relevant brain volume, and a self-reported score when accounting for age and education. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The brain volume considered is the parahippocampal volume, known in literature to be important for memory function. The self-reported score asks the subject about their ability to recall items in their day-to-day lives. 
-
-```{r}
-hypo_two_dataset <- tidy_dataset %>%
-  select(ID,
-         Pic_Seq_Mem_Test,
-         Age,
-         Musical_Practice,
-         R_Parahippo_vol,
-         L_Parahippo_vol,
-         Est_Tot_intra_cranial_vol,
-         Second_Language,
-         Education_Level,
-         Remembering
-  ) %>% 
-  mutate(Parahippo_vol = 
-           (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol)
-# Total parahippocampal volume (PHC) is calculated as the sum of the left and right parahippocampal volumes, normalized to estimated total intracranial volume (PHC = (fs_parahpc_vol_l + fs_parahpc_vol_r) / (fs_etiv)) 
-
-hypo_two_dataset
-### TODO : description of Parahippo_vol in tibble is 'Right Parahippocal Volume', therefore need to fix ( " data.frame(Parahippo_vol, description = "Parahippocampal Volume as Fraction of Total Intracranial Volume") " ?)
-```
-### Statistical Hypothesis:
-
-Ho: The NIH Picture Sequence Memory test scores will not be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
-
-Ha: NIH Picture Sequence Memory test scores will be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
-
-### Statistical Model:
-$$\begin{aligned}
-\hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
-\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
-\end{aligned}$$
-
-### Visualization:
-```{r}
-#Age vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset, aes(x = Age,
-                                    y = Pic_Seq_Mem_Test)) +
-  geom_point() +
-  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) +
-  ylab("Picture Sequence Memory Test Score") +
-  theme_bw()
-
-#Musical Practice vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset %>% filter(!is.na(Musical_Practice)), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,
-                                    color=factor(Musical_Practice,labels=c("Not Answered", "Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")))) +
-  geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "black") +
-  scale_x_discrete(labels=c("Not Answered","Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")) +
-  xlab("Musical Practice") +
-  ylab("Picture Sequence Memory Test Score") +
-  labs(color='Musical Practice') +
-  theme_bw()
-# TO DO : change " color=factor(Musical_Practice,labels=c("Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")) " to " color=Musical Practice " if not including legend in final figure
-
-#Second Language vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset %>% filter(!is.na(Second_Language)), aes(x = Second_Language, y = Pic_Seq_Mem_Test,
-                                    color = Second_Language)) +
-  geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "green") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
-  xlab("Second Language") +
-  ylab("Picture Sequence Memory Test Score") +
-  theme_bw()
-
-#Education Level vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset %>% filter(!is.na(Education_Level)), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
-                                    color = Education_Level)) +
-  geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "black") +
-  scale_x_discrete(labels=c("High School","Associate's","Bachelor's","Master's","Doctorate/Professional")) +
-  xlab("Education Level") +
-  ylab("Picture Sequence Memory Test Score") +
-  theme_bw()
-
-#Parahippocampal Volume vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset, aes(x = Parahippo_vol,
-                                    y = Pic_Seq_Mem_Test)) +
-  geom_point() +
-  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) + 
-  xlab("Parahippocampal Volume") +
-  ylab("Picture Sequence Memory Test Score") +
-  theme_bw()
-
-#Ability to Remember vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset %>% filter(!is.na(Remembering)), aes(x = Remembering, y = Pic_Seq_Mem_Test,
-                                    color = Remembering)) +
-  geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "black") +
-  scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
-  xlab("Ability to Remember Things as Easily as Usual") +
-  ylab("Picture Sequence Memory Test Score") +
-  theme_bw()
-
-
-### TODO : Apply chosen plot changes to other graphs after consulting with group (Musical Practice is the example plot with legend and x axis sublabels)
-### TODO : Remove NA boxplot boxes (Or should we leave them in?)
-### TODO : Remove values to prevent Warning messages? (additional data carpentry)
-```
-
-### Model Interpretation and Analysis:
-```{r}
-hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
-kable(tidy(hypo2_model), digits = 3)
-kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
-
-# Create alternative model with non statistically significant variables removed from model, for comparison with original model
-hypo2_model_2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol )
-kable(tidy(hypo2_model_2), digits = 3)
-kable(tidy(Anova(hypo2_model_2, type = 2, alpha = 0.05)), digits = 3)
-  
-AIC(hypo2_model, hypo2_model_2)
-# Original model has lower AIC value, therefore is a 'better' model according to this measure
-
-```
-```{r}
-hypo2_model_aug <- augment(hypo2_model)
-
-#Hypothesis Two Residuals vs. Fitted Values plot
-ggplot(hypo2_model_aug, aes(.fitted, .resid)) +
-  geom_point() +  
-  geom_smooth(method=lm, formula = `y` ~ `x`) +
-  labs(
-title = "Residuals vs. Fitted Values for Hypothesis Two")+
-theme(plot.title = element_text(size = rel(1),
-                                hjust = 0.5))
-
-#Hypothesis Two QQ plot
-hypo2_model_aug %>%
-    ggplot(aes(sample= .std.resid)) +
-  stat_qq() +
-  stat_qq_line() +
-  labs(
-title = "QQ Plot showing Distribution of Standard
-Residual Values for Hypothesis Two") +
-ylab("Sample") +
-xlab("Theoretical") + 
-theme(plot.title = element_text(size = rel(1),
-                                hjust = 0.5))
-
-# TODO: delete commented out part below
-# hypo2_model_mean_hat <-
-#   summarise(hypo2_model_aug, "mean_hat"=mean(.hat))
-# # 0.161616
-
-hypo2_model_ave_hat = (6+1)/nrow(hypo2_model_aug)
-#hat_ave = (k+1)/n
-    #k = number of regressors, = 6 here
-    #n = number of samples
-
-hypo2_model_aug %>% 
-  ggplot( aes( y = .std.resid,
-               x = .hat, size = .cooksd )) +
-  geom_point(shape = 1) +
-  geom_vline(xintercept = hypo2_model_ave_hat, 
-             linetype = 2) +
-  geom_vline(xintercept = 2 *	hypo2_model_ave_hat,
-             linetype = 2, color="orange") +
-  geom_vline(xintercept = 3 * hypo2_model_ave_hat,
-             linetype = 2, color="red") +
-  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
-                              #TODO : alternatively >= 4/nrow(hypo2_model_aug)
-str_c("(", `Pic_Seq_Mem_Test`, ", ", `Parahippo_vol`,")"), "")),
-nudge_y = 0.2, size=3, nudge_x = 0.035, color = "red") +
-   #title
-  labs(
-title = "Cooks Distance for
-Hypothesis Two Model")+
-theme(plot.title = element_text(size = rel(1), hjust = 0.5))
-
-```
-
-```{r}
-#Post-hoc
-
-hypo2_emm <- emmeans(hypo2_model, ~ Age | Education_Level | Musical_Practice | Second_Language | Parahippo_vol | Remembering)
-
-contrast(hypo2_emm, by = NULL) %>%
-  tidy()
-# TODO: clean up output or delete
-
-```
-
-
-
 ## Phuc stuff
 
 # Scientific Hypotheses (Planned Analysis):
@@ -443,6 +255,236 @@ hypo1_model_3_aug %>%
     geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
                               paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
   theme_bw()
+```
+
+## Chris stuff
+
+## Hypothesis 2: The ability to recall from memory, proxied by the NIH Picture Sequence Memory Test, can be explained by the combined effect of relevant behavioral habits, fractional brain volume of a relevant section of the brain, and a self-reported score when accounting for age and education. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The brain volume considered is the parahippocampal region, known in literature to be important for memory function. The self-reported score asks the subject about their ability to easily recall details in their day-to-day lives. 
+
+* Variables from the dataset have been renamed to improve clarity (e.g. tb_picseq_unadj_ss -> Pic_Seq_Mem_Test)
+
+* Participants' responses on whether they spoke a second language contains 'NA' (no) and the value '1' (yes). These responses were changed to No ('NA') and yes ('1') in order to increase the number of data points for statistical analysis and was done under the assumption that the participants leaving no response meant that they did not speak a second language. Without this assumption, an analysis could not be made, as it would represent a factor with only a single factor level.
+
+* Participants' responses on the degree in which they are able to remember this as easily as usual (pac_remember -> Remembering) contains NAs and values between 1 and 5, with a higher number representing of greater agreement that their ability to remember things as easily as usual. NA responses were changed to '0' to represent the portion of patients who did not answer the question as their own factor level. Unfortunately without doing so, the patchiness of the dataset (i.e. missing values across different categories) prevented the creation of a linear model due to insufficient data points. In short, an insufficient number of patients answered every single question evaluated within our model.
+
+```{r}
+hypo_two_dataset <- tidy_dataset %>%
+  select(ID,
+         Pic_Seq_Mem_Test,
+         Age,
+         Musical_Practice,
+         R_Parahippo_vol,
+         L_Parahippo_vol,
+         Est_Tot_intra_cranial_vol,
+         Second_Language,
+         Education_Level,
+         Remembering
+  ) %>% 
+  mutate(Parahippo_vol = 
+           (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol)
+# Fractional parahippocampal volume (Parahippo_vol) is calculated as the sum of the left and right parahippocampal volumes as a fraction of the estimated total intracranial volume:
+# (Parahippo_vol = (fs_parahpc_vol_l + fs_parahpc_vol_r) / (fs_etiv)) 
+
+```
+### Statistical Hypothesis:
+
+Ho: The NIH Picture Sequence Memory test scores will not be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
+
+Ha: NIH Picture Sequence Memory test scores will be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
+
+### Statistical Model:
+$$\begin{aligned}
+\hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
+\end{aligned}$$
+
+### Visualization:
+```{r}
+#Age vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset, aes(x = Age,
+                                    y = Pic_Seq_Mem_Test)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(title = "Age vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Age vs. Picture Sequence Memory Test): There is a negative correlation between the participants' age and scores from the Picture Sequence Memory test. This may indicate that memory associated with picture sequencing diminishes with age.
+
+```{r}
+#Musical Practice vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset %>% filter(!is.na(Musical_Practice)), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("Not Answered", "Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")))) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  scale_x_discrete(labels=c("Not Answered","Less than 1 hour","1-2.5 hours","3-4.5 hours","5-6.5 hours")) +
+  xlab("Musical Practice") +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(color='Musical Practice') +
+  labs(title = "Musical Practice vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Musical Practice vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between musical practice and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot does not appear to follow a trend with increasing score in the Picture Sequence Memory Test. It is also important to note that there are relatively few data points, as no answer is given for this particular question for many of the participants in the provided dataset, and very few participants answered for the higher categories of number of hours practiced.
+
+```{r}
+#Second Language vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset %>% filter(!is.na(Second_Language)), aes(x = Second_Language, y = Pic_Seq_Mem_Test,
+                                    color = Second_Language)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "green") +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  xlab("Second Language") +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(title = "Second Language vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Second Language vs. Picture Sequence Memory Test): The boxplot appears to suggest that there is a significant effect between speaking a second language and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot are notably different. It is also important to note however that there are relatively few data points in the 'Yes' group.
+
+```{r}
+#Education Level vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset %>% filter(!is.na(Education_Level)), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
+                                    color = Education_Level)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  scale_x_discrete(labels=c("High School","Associate's","Bachelor's","Master's","Doctorate/Professional")) +
+  xlab("Education Level") +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(title = "Education Level vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Education Level vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between education level and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test.
+
+```{r}
+#Parahippocampal Volume vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset, aes(x = Parahippo_vol,
+                                    y = Pic_Seq_Mem_Test)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) + 
+  xlab("Parahippocampal Volume") +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(title = "Parahippocampal Volume vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Parahippocampal Volume vs. Picture Sequence Memory Test): There is a positive correlation between the participants' fractional parahippocampal volume and scores from the Picture Sequence Memory test. This may indicate that greater fractional volume of the parahippocampus region represents a better memory ability for picture sequencing.
+
+```{r}
+#Ability to Remember vs. Picture Sequence Memory Test
+ggplot(data = hypo_two_dataset %>% filter(!is.na(Remembering)), aes(x = Remembering, y = Pic_Seq_Mem_Test,
+                                    color = Remembering)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
+  xlab("Ability to Remember Things as Easily as Usual") +
+  ylab("Picture Sequence Memory Test Score") +
+  labs(title = "Ability to Remember Things as Easily as Usual vs. Picture Sequence Memory Test") +
+  theme_bw() +
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Ability to Remember vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between the ability to remember things and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test. It is also important to note that there are relatively few data points, as no answer is given for this particular question for many of the participants in the provided dataset.
+
+### Model Interpretation and Analysis:
+```{r}
+# Original Hypothesis Two model generation
+hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
+kable(tidy(hypo2_model), digits = 3)
+kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
+```
+Model 1 (Full Model): Anova (type 2) test
+* The terms of: Education Level, Musical Practice, and Remembering are insignificant (p-value >> alpha = 0.05).
+* The terms of: Age, Second Language, and Parahippocampal Volume are significant (p-value << alpha = 0.05).
+* A large degree of the model's variance is attributed to the Age variable.
+
+```{r}
+# Create alternative model with non statistically significant variables removed from model, for comparison with original model
+hypo2_model_2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol )
+kable(tidy(hypo2_model_2), digits = 3)
+kable(tidy(Anova(hypo2_model_2, type = 2, alpha = 0.05)), digits = 3)
+
+# Compare original and alternative models
+kable(AIC(hypo2_model, hypo2_model_2))
+```
+Model 2 (Education Level, Musical Practice, and Remembering): Anova (type 2) test
+* The Parahippocampal Volume term is now insignificant (p-value >> alpha = 0.05).
+* The Age and Second Language terms remain significant in this new model.
+* A large degree of the model's variance is attributed to both Age and Second Language variables, with Parahippocampal volume representing much less.
+
+The original model has lower AIC value, therefore is a 'better' model according to this measure.
+
+```{r}
+# Model diagnostics plotting
+hypo2_model_aug <- augment(hypo2_model)
+
+# Hypothesis Two Residuals vs. Fitted Values plot
+ggplot(hypo2_model_aug, aes(.fitted, .resid)) +
+  geom_point() +  
+  geom_smooth(method=lm, formula = `y` ~ `x`) +
+  labs(
+title = "Residuals vs. Fitted Values for Hypothesis Two")+
+theme(plot.title = element_text(size = rel(1),
+                                hjust = 0.5))
+```
+Residuals vs. Fitted Values Plot:
+* Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.
+
+```{r}
+#Hypothesis Two QQ plot
+hypo2_model_aug %>%
+    ggplot(aes(sample= .std.resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(
+title = "QQ Plot showing Distribution of Standard
+Residual Values for Hypothesis Two") +
+ylab("Sample") +
+xlab("Theoretical") + 
+theme(plot.title = element_text(size = rel(1),
+                                hjust = 0.5))
+```
+QQ Plot:
+* Observing the QQ plot shows that the model most closely follows a chi squared distribution with both the left hand and right hand tails tilting up.
+
+```{r}
+#Hypothesis Two Cooks Distance plot
+hypo2_model_ave_hat = (6+1)/nrow(hypo2_model_aug)
+#hat_ave = (k+1)/n
+    #k = number of regressors, = 6 here
+    #n = number of samples
+
+hypo2_model_aug %>% 
+  ggplot( aes( y = .std.resid,
+               x = .hat, size = .cooksd )) +
+  geom_point(shape = 1) +
+  geom_vline(xintercept = hypo2_model_ave_hat, 
+             linetype = 2) +
+  geom_vline(xintercept = 2 *	hypo2_model_ave_hat,
+             linetype = 2, color="orange") +
+  geom_vline(xintercept = 3 * hypo2_model_ave_hat,
+             linetype = 2, color="red") +
+  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
+# 3*(average Cooks Distance) is a general rule of thumb for highlighting potential outliers
+str_c("(", `Pic_Seq_Mem_Test`, ", ", `Parahippo_vol`,")"), "")),
+nudge_y = 0.2, size=3, nudge_x = 0.035, color = "red") +
+  labs(
+title = "Cooks Distance for
+Hypothesis Two Model")+
+theme(plot.title = element_text(size = rel(1), hjust = 0.5))
+```
+Cooks Distance Plot: 
+* Using the general rule of thumb for highlighting outliers of 3*(average Cooks Distance), we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+
+```{r}
+#Post-hoc
+
+hypo2_emm <- emmeans(hypo2_model, ~ Age | Education_Level | Musical_Practice | Second_Language | Parahippo_vol | Remembering)
+
+contrast(hypo2_emm, by = NULL) %>%
+  tidy()
+# TODO: clean up output or delete
+
 ```
 
 # Exploratory analysis
