@@ -15,8 +15,11 @@ library(tidymodels)
 
 ```
 
-
 Title.
+
+#Introduction: 
+
+#A Priori: 
 
 # Planned hypotheses
 
@@ -209,6 +212,238 @@ contrast(hypo2_emm, by = NULL) %>%
 
 
 ## Phuc stuff
+
+# Scientific Hypotheses (Planned Analysis):
+
+```{r planned-data-carpentry}
+dataset <- readRDS("./data/group3_data.rds")
+
+tidy_dataset <- dataset %>%
+  rename(ID = record_id,
+         Flanker_test = tb_flanker_unadj_ss,
+         Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
+         Moca_Score = moca_unadj,
+         Musical_Practice = champs_q17c,
+         Age = gi_age,
+         Education_Level = gi_degree,
+         Second_Language = gi_2ndlang_yn,
+         Track_Activity = pac_track_doing,
+         Paying_Attention = pac_pay_attention,
+         Concentration = pac_concentrate,
+         Indecisiveness = bdi_indecisiveness,
+         Remembering = pac_remember,
+         R_Parahippo_vol = fs_parahpc_vol_r,
+         L_Parahippo_vol = fs_parahpc_vol_l,
+         Est_Tot_intra_cranial_vol = fs_etiv
+         ) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
+  mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , as.numeric(Musical_Practice))) %>% 
+  mutate(Track_Activity = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
+  mutate(Remembering = if_else(condition = is.na(Remembering), 0 , as.numeric(Remembering))) %>%
+  mutate(Musical_Practice = as_factor(Musical_Practice),
+         Education_Level = as_factor(Education_Level),
+         Second_Language = as_factor(Second_Language),
+         Paying_Attention = as_factor(Paying_Attention),
+         Track_Activity = as_factor(Track_Activity),
+         Concentration = as_factor(Concentration),
+         Indecisiveness = as_factor(Indecisiveness),
+         Remembering = as_factor(Remembering),
+         Moca_Score = as.numeric(Moca_Score),
+         Age = as.numeric(Age)
+  )
+dataset
+tidy_dataset
+```
+
+## Hypothesis 1: The ability to keep track of current tasks, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to keep track of current tasks in a distracting environment. 
+
+* Variables from the dataset were renamed to improve clarity (Ex. tb_flanker_unadj_ss -> Flanker_test)
+
+* Participants' responses on whether they spoke a second language contains NA (no) and the value one (yes). These responses were changed to No (NA) and yes   (one) in order to increase the number of data points for statistical analysis and was done under the assumption that the participants leaving no response   means that they did not speak a second language.
+
+* Participants' responses on the degree in which they are able to track what they are doing even when interrupted (track activity) contains NA and a value   between the range of 1-5, with a higher value indicating a higher degree of being able to track current tasks. NA responses were changed to 0 under the    assumption that NA indicates the Participants' inability to track current tasks for the purpose of increasing data points and homogeneity with external    variables.
+
+```{r}
+hypo_one_dataset <- tidy_dataset %>%
+  select(ID,
+         Flanker_test,
+         Age,
+         Musical_Practice,
+         Second_Language,
+         Education_Level,
+         Track_Activity
+  )
+  
+```
+### Statistical Hypothesis:
+
+Ho: Flanker’s test scores will not be significantly different for different behavioral habits, accounting for age and education. 
+
+Ha: Flanker’s test scores will be significantly different for different behavioral 	habits, accounting for age and education. 
+
+### Statistical Model:
+$$\begin{aligned}
+\hat{y}_{Flanker.Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{Track}X_{Track}?
+\end{aligned}$$
+
+### Visualization:
+```{r}
+#Age vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Age,
+                                    y = Flanker_test)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = `y` ~ `x`, se = F) +
+  xlab("Age") +
+  ylab("Flanker's Test Unadjusted Score") + 
+  labs(title = "Age vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Age vs. Flanker's Test): There is a negative correlation between the participants' age and unadjusted scores from Flanker's test. The linear regression overlayed over the scatterplot suggests that the relationship between the two variables are not strong, as points are spread out along the y-axis.
+
+```{r}
+#Musical Practice vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
+                                    color = Musical_Practice)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Musical Practice (Total Hrs per Week)") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Musical Practice vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Musical vs. Flanker's Test): The boxplot suggests that there is not a significant relationship and variation between the participants' unadjusted scores from the Flanker's test and how many hours per week they conducted musical practice. This can be visually observed through each group's mean being similar in position to each on the y-axis and following no trend.
+
+```{r}
+#Second Language vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
+                                    color = Second_Language)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "green") +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  xlab("Second Language(s)") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Second Language(s) vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Second Language Speaking vs. Flanker's Test): The boxplot shows that there is some impact of speaking a second language on participants' unadjusted Flanker's test scores. The boxplot that represents speaking a second language has a mean and overall quartile score values higher than the boxplot that represents not speaking a second language.
+
+```{r}
+#Education Level vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
+                                    color = Education_Level)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Highest Academic Degree") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Highest Academic Degree vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Highest Academic Degree vs. Flanker's Test): The boxplots can be visually observed to suggest that the degree of education do not have a significant effect on the unadjusted Flanker's test scores of participants. Specifically, the means of each boxplot are relatively similar and do not deviate much from each other.
+
+```{r}
+#Keep Track of Current Tasks vs. Flanker's Test
+ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
+                                    color = Track_Activity)) +
+  geom_boxplot(show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
+  xlab("Keep Track of Current Tasks") +
+  ylab("Flanker's Test Unadjusted Score")  + 
+  labs(title = "Keep Track of Current Tasks vs. Flanker's Test") + 
+  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
+Figure (Keep Track of Current Tasks vs. Flanker's Test): The boxplot can be visually observed to suggest that there is not a significant effect between the ability to keep track of current tasks and the unadjusted Flanker's test scores of participants. Specifically, the mean of each boxplot do not follow a trend with increasing degree in ability to keep track of current tasks. 
+
+### Model Interpretation and Analysis:
+
+Model 1 (Full Model): Anova (type 2) test
+* The terms of: Track Activity, Second Language, Education Level, and Musical Practice are insignificant (p-value >> alpha = 0.05).
+* The terms of: Age is significant (p-value << alpha = 0.05).
+* A large degree of the model's variance is attributed to the age variable.
+* Only the participants' age can be conclusively determined to have a significant effect on the participants' unadjusted Flanker's test scores. 
+
+```{r}
+#Model Construction
+hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
+
+#Analysis and Comparison
+kable(tidy(hypo1_model_1), digits = 3)
+kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
+```
+Model 2 (Age & Education Removed): Anova (type 2) test
+* The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
+* No significant terms are contained in the model.
+* A large degree of the model's variance is attributed to the track activity variable.
+
+```{r}
+#Model Construction
+hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Second_Language + Musical_Practice)
+
+#Analysis and Comparison
+kable(tidy(hypo1_model_2), digits = 3)
+kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
+```
+Model 3 (Age & Education Removed): Anova (type 2) test
+* The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
+* No significant terms are contained in the model.
+* A large degree of the model's variance is attributed to the track activity variable.
+
+```{r}
+#Model Construction
+hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Education_Level)
+
+#Analysis and Comparison
+kable(tidy(hypo1_model_3), digits = 3)
+kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
+AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3)
+```
+
+Fitted vs. Residual Values Plot: 
+* 
+```{r}
+# Use augment to add fitted values and residuals to model data
+hypo1_model_3_aug <- augment(hypo1_model_3)
+
+# Plot the residuals against the values fitted by the model.
+ggplot(hypo1_model_3_aug, aes(.fitted, .resid))+
+  geom_point()
+```
+
+```{r}
+# Plot the std. residuals against the fitted values.
+ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
+  geom_point()+
+  geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
+  geom_smooth(method=lm, formula = `y` ~ `x`)+
+  geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)
+```
+
+QQ Plot:
+* Observing the QQ plot shows that the model most closely follows a Gaussian/normal distribution with the left hand tail tilting up while the right hand tail is tilting down. However, there is variation as the points at the tails are scewing away from the linear line.
+
+```{r}
+# QQ Plot
+ggplot(hypo1_model_3_aug, aes(sample=.std.resid))+
+  stat_qq(aes(color = "red"), show.legend = F)+
+  stat_qq_line(aes(color = "blue"), show.legend = F)
+
+hat_avg_model_3 = (2+1)/nrow(hypo1_model_1_aug)
+```
+
+
+```{r}
+#Cooks Distance:
+hypo1_model_3_aug %>% 
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = hat_avg_model_3, linetype = 2)+
+  geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+    geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
+                              paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
+  theme_bw()
+```
 
 # Exploratory analysis
 
