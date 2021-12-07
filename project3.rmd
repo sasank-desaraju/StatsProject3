@@ -44,7 +44,7 @@ tidy_dataset <- dataset %>%
          ) %>%
   mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>% 
   mutate(Musical_Practice = if_else(condition = is.na(Musical_Practice), 0 , as.numeric(Musical_Practice))) %>% 
-  # mutate(Musical_Practice = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
+  mutate(Musical_Practice = if_else(condition = is.na(Track_Activity), 0 , as.numeric(Track_Activity))) %>% 
   mutate(Remembering = if_else(condition = is.na(Remembering), 0 , as.numeric(Remembering))) %>%
   mutate(Musical_Practice = as_factor(Musical_Practice),
          Education_Level = as_factor(Education_Level),
@@ -178,18 +178,18 @@ ggplot(hypo1_model_2_aug, aes(sample=.std.resid))+
 hat_avg_model_2 = (4+1)/nrow(hypo1_model_2_aug)
 
 # look at resid vs hat values
-# hypo1_model_2_aug %>% 
-#   pivot_longer(cols = c(.std.resid, .resid)) %>%
-#   ggplot(aes(.hat, value))+
-#   facet_wrap(vars(name))+
-#   geom_point()+
-#   # Line marking average hat value
-#   geom_vline(xintercept = hat_avg_model_2, linetype = 2)+
-#   # Line marking 2*average hat value
-#   geom_vline(xintercept = 2 * hat_avg_model_2, linetype = 2, color="orange")+
-#   # Line marking 3*average hat value
-#   geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
-#   theme_bw()
+hypo1_model_2_aug %>%
+  pivot_longer(cols = c(.std.resid)) %>%
+  ggplot(aes(.hat, value))+
+  facet_wrap(vars(name))+
+  geom_point()+
+  # Line marking average hat value
+  geom_vline(xintercept = hat_avg_model_2, linetype = 2)+
+  # Line marking 2*average hat value
+  geom_vline(xintercept = 2 * hat_avg_model_2, linetype = 2, color="orange")+
+  # Line marking 3*average hat value
+  geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
+  theme_bw()
 
 #Cooks Distance:
 hypo1_model_2_aug %>% 
@@ -199,7 +199,7 @@ hypo1_model_2_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_2, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-    geom_text(aes(label=if_else(.hat>2*hat_avg_model_2 |.cooksd>=(2/sqrt(nrow(hypo1_model_2_aug))),
+    geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
                               paste0("(",Musical_Practice, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, size=4)+
   theme_bw()
 
