@@ -6,13 +6,50 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(car)
 library(knitr)
 library(emmeans)
 library(tidymodels)
 
+```
+
+```{r copy-of-data-carpentry}
+dataset <- readRDS("./data/group3_data.rds")
+
+tidy_dataset <- dataset %>%
+  rename(ID = record_id,
+         Flanker_test = tb_flanker_unadj_ss,
+         Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
+         Moca_Score = moca_unadj,
+         Musical_Practice = champs_q17c,
+         Age = gi_age,
+         Education_Level = gi_degree,
+         Second_Language = gi_2ndlang_yn,
+         Track_Activity = pac_track_doing,
+         Paying_Attention = pac_pay_attention,
+         Concentration = pac_concentrate,
+         Indecisiveness = bdi_indecisiveness,
+         Remembering = pac_remember,
+         R_Parahippo_vol = fs_parahpc_vol_r,
+         L_Parahippo_vol = fs_parahpc_vol_l,
+         Est_Tot_intra_cranial_vol = fs_etiv
+         ) %>%
+  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
+  mutate(Musical_Practice = as_factor(Musical_Practice),
+         Education_Level = as_factor(Education_Level),
+         Second_Language = as_factor(Second_Language),
+         Track_Activity = as_factor(Track_Activity),
+         Paying_Attention = as_factor(Paying_Attention),
+         Concentration = as_factor(Concentration),
+         Indecisiveness = as_factor(Indecisiveness),
+         Remembering = as_factor(Remembering),
+         Moca_Score = as.numeric(Moca_Score),
+         Age = as.numeric(Age)
+  )
+
+tidy_dataset
 ```
 
 Title.
@@ -491,7 +528,7 @@ contrast(hypo2_emm, by = NULL) %>%
 
 ## Natalie stuff
 
-## Sasank stuff
+## Parahippocampal Volume and Memory
 
 *Planned exploratory analysis*
 
@@ -506,3 +543,7 @@ contrast(hypo2_emm, by = NULL) %>%
 ### Discussion
 
 *Unplanned exploratory analysis*
+
+### Accounting for effects
+
+# Supplemental Tables and Figures
