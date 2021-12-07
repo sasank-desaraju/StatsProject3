@@ -100,7 +100,9 @@ ggplot(data = hypo_one_dataset, aes(x = Age,
   ylab("Flanker's Test Unadjusted Score") + 
   labs(title = "Age vs. Flanker's Test") + 
   theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
 
+```{r}
 #Musical Practice vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
                                     color = Musical_Practice)) +
@@ -110,7 +112,9 @@ ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Musical Practice vs. Flanker's Test") + 
   theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
 
+```{r}
 #Second Language vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
                                     color = Second_Language)) +
@@ -121,7 +125,9 @@ ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Second Language(s) vs. Flanker's Test") + 
   theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
 
+```{r}
 #Education Level vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
                                     color = Education_Level)) +
@@ -131,7 +137,9 @@ ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Highest Academic Degree vs. Flanker's Test") + 
   theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+```
 
+```{r}
 #Ability to Pay Attention vs. Flanker's Test
 ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
                                     color = Track_Activity)) +
@@ -142,6 +150,8 @@ ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
   labs(title = "Ability to Pay Attention vs. Flanker's Test") + 
   theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
 ```
+
+
 ### Model Interpretation and Analysis:
 ```{r}
 #Model Construction
@@ -150,8 +160,8 @@ hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Musical_Practice)
 
 #Analysis and Comparison
-kable(tidy(hypo1_model_1), digits = 3)
-kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
+kable(tidy(hypo1_model_2), digits = 3)
+kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
 AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3)
 ```
 
@@ -162,14 +172,18 @@ hypo1_model_2_aug <- augment(hypo1_model_2)
 # Plot the residuals against the values fitted by the model.
 ggplot(hypo1_model_2_aug, aes(.fitted, .resid))+
   geom_point()
+```
 
+```{r}
 # Plot the studentized residuals against the fitted values.
 ggplot(hypo1_model_2_aug, aes(.fitted, .std.resid))+
   geom_point()+
   geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
   geom_smooth(method=lm, formula = `y` ~ `x`)+
   geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)
+```
 
+```{r}
 # QQ Plot
 ggplot(hypo1_model_2_aug, aes(sample=.std.resid))+
   stat_qq()+
@@ -177,7 +191,9 @@ ggplot(hypo1_model_2_aug, aes(sample=.std.resid))+
   geom_abline(slope=1, intercept=0, linetype=2)
 
 hat_avg_model_2 = (4+1)/nrow(hypo1_model_2_aug)
+```
 
+```{r}
 # look at resid vs hat values
 hypo1_model_2_aug %>%
   pivot_longer(cols = c(.std.resid)) %>%
@@ -191,7 +207,9 @@ hypo1_model_2_aug %>%
   # Line marking 3*average hat value
   geom_vline(xintercept = 3 * hat_avg_model_2, linetype = 2, color="red")+
   theme_bw()
+```
 
+```{r}
 #Cooks Distance:
 hypo1_model_2_aug %>% 
   ggplot( aes(.hat, .std.resid, size=.cooksd))+
