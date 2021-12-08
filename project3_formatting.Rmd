@@ -150,6 +150,7 @@ ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Musical vs. Flanker's Test): The boxplot suggests that there is not a significant relationship and variation between the participants' unadjusted scores from the Flanker's test and how many hours per week they conducted musical practice. This can be visually observed through each group's mean being similar in position to each on the y-axis and following no trend.}
 
 ```{r}
@@ -165,6 +166,7 @@ ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_La
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Second Language Speaking vs. Flanker's Test): The boxplot shows that there is some impact of speaking a second language on participants' unadjusted Flanker's test scores. The boxplot that represents speaking a second language has a mean and overall quartile score values higher than the boxplot that represents not speaking a second language.}
 
 ```{r}
@@ -201,14 +203,19 @@ testerdata <- hypo_one_dataset %>%
   drop_na(Track_Activity,Flanker_test) %>%
   filter(Track_Activity == 2)
 ```
+
 \emph{Figure (Keep Track of Current Tasks vs. Flanker's Test): The boxplot can be visually observed to suggest that there is not a significant effect between the ability to keep track of current tasks and the unadjusted Flanker's test scores of participants. Specifically, the mean of each boxplot do not follow a trend with increasing degree in ability to keep track of current tasks.} 
 
 ### Model Interpretation and Analysis:
 
 \textbf{Model 1 (Full Model): Anova (type 2) test}
+
 * The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree), Second Language, Education Level, and Musical Practice are insignificant (p-value >> alpha = 0.05).
+
 * The terms of: Age and Track Activity (4th degree) is significant (p-value << alpha = 0.05).
+
 * A large degree of the model's variance is attributed to the age variable.
+
 * Only the participants' age can be conclusively determined to have a significant effect on the participants' unadjusted Flanker's test scores. 
 
 ```{r}
@@ -222,32 +229,46 @@ kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 
 ```{r}
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
+
 invisible(drop1(hypo1_model_1))
+
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
+
 hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
 kable(tidy(hypo1_model_2), digits = 3)
 kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 \textbf{Model 2 (Musical Practice Removed): Anova (type 2) test}
+
 * The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree), Second Language, and Education Level are insignificant (p-value >> alpha = 0.05).
+
 * Age and Track Activity (4th degree) is significant in the model (p-value < alpha = 0.05).
+
 * A large degree of the model's variance is attributed to the age variable.
 
 ```{r}
 invisible(drop1(hypo1_model_2))
+
 #Dropping Education Level gives best improvement to AIC, therefore dropped
+
 hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
 
 invisible(drop1(hypo1_model_3))
+
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
 kable(tidy(hypo1_model_3), digits = 3)
 kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 \textbf{Model 3 (Musical Practice and Education Level Removed): Anova (type 2) test}
+
 * The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree)and second language are insignificant (p-value >> alpha = 0.05).
+
 * Age and Track Activity (4th degree) are significant (p-value < alpha = 0.05).
+
 * A large degree of the model's variance is attributed to the age variable.
 
 ```{r}
@@ -262,6 +283,7 @@ ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure(Residuals vs. Fitted Values Hypothesis 1 Model 3):Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.}
 
 ```{r}
@@ -278,6 +300,7 @@ Project3_theme()
 
 hat_avg_model_3 = (3+1)/nrow(hypo1_model_3_aug) 
 ```
+
 \emph{Figure(QQ Plot Hypothesis 1 Model 3): Observing the QQ plot shows that the model most closely follows a Chi-squared distribution with the left and right hand tails tilting upwards. However, there is variation as the points at the tails are scewing away from the linear line.}
 
 ```{r}
@@ -294,9 +317,13 @@ hypo1_model_3_aug %>%
   theme_bw() +
   Project3_theme()
 ```
+
 \textbf{Cooks Distance Plot: }
+
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see that four points pass the threshold. As such, we identified these points as outliers and removed them from the model.
+
 * The following points are then removed (.rownames, .cooksd): (43, 0.067), (45, 0.074), and (127, 0.045)
+
 * In the supplements, you can see four cook's plots that show each point above dropped one at a time. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
 
 ```{r Cooks Flankers Removal}
@@ -308,6 +335,7 @@ new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + A
 kable(tidy(new_hypo1_model))
 kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 \emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
 
 ### Post-hoc Analysis
@@ -382,6 +410,7 @@ ggplot(drop_na(hypo_two_dataset,Age,Pic_Seq_Mem_Test), aes(x = Age,
   theme_bw() +
   Project3_theme()
 ```
+
 \emph{Figure (Age vs. Picture Sequence Memory Test): There is a negative correlation between the participants' age and scores from the Picture Sequence Memory test. This may indicate that memory associated with picture sequencing diminishes with age.}
 
 ```{r}
@@ -398,6 +427,7 @@ ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musi
   theme_bw() +
   Project3_theme()
 ```
+
 \emph{Figure (Musical Practice vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between musical practice and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot does not appear to follow a trend with increasing score in the Picture Sequence Memory Test. It is also important to note that there are relatively few data points, as no answer is given for this particular question for many of the participants in the provided dataset, and very few participants answered for the higher categories of number of hours practiced.} 
 
 ```{r}
@@ -413,6 +443,7 @@ ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Secon
   theme_bw() +
   Project3_theme()
 ```
+
 \emph{Figure (Second Language vs. Picture Sequence Memory Test): The boxplot appears to suggest that there is a significant effect between speaking a second language and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot are notably different. It is also important to note however that there are relatively few data points in the 'Yes' group.}
 
 ```{r}
@@ -430,6 +461,7 @@ ggplot(drop_na(hypo_two_dataset,Education_Level,Pic_Seq_Mem_Test), aes(x = Educa
   Project3_theme() +
   theme(axis.text.x = element_text(size=10))
 ```
+
 \emph{Figure (Education Level vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between education level and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test.}
 
 ```{r}
@@ -444,6 +476,7 @@ ggplot(drop_na(hypo_two_dataset,Parahippo_vol,Pic_Seq_Mem_Test), aes(x = Parahip
   theme_bw() +
   Project3_theme()
 ```
+
 \emph{Figure (Parahippocampal Volume vs. Picture Sequence Memory Test): There is a positive correlation between the participants' fractional parahippocampal volume and scores from the Picture Sequence Memory test. This may indicate that greater fractional volume of the parahippocampus region represents a better memory ability for picture sequencing.}
 
 ```{r}
@@ -460,18 +493,24 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Ability to Remember vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between the ability to remember things and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test. It is also important to note that there are relatively few data points, as no answer is given for this particular question for many of the participants in the provided dataset.}
 
 ### Model Interpretation and Analysis:
+
 ```{r}
 # Original Hypothesis Two model generation
 hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
 kable(tidy(hypo2_model), digits = 3)
 kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 \textbf{Model 1 (Full Model): Anova (type 2) test}
+
 * The terms of: Education Level, Musical Practice, and Remembering are insignificant (p-value >> alpha = 0.05).
+
 * The terms of: Age, Second Language, and Parahippocampal Volume are significant (p-value << alpha = 0.05).
+
 * A large degree of the model's variance is attributed to the Age variable.
 
 ```{r}
@@ -497,8 +536,11 @@ kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \textbf{Model 2 (Education Level, Musical Practice, and Remembering): Anova (type 2) test}
+
 * The Parahippocampal Volume term is now insignificant (p-value >> alpha = 0.05).
+
 * The Age and Second Language terms remain significant in this new model.
+
 * A large degree of the model's variance is attributed to both Age and Second Language variables, with Parahippocampal volume representing much less.
 
 ```{r}
@@ -516,6 +558,7 @@ title = "Residuals vs. Fitted Values for Hypothesis Two")+
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure(Residuals vs. Fitted Values Hypothesis 2): Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. Two residuals in particular stand out somewhat in the upper right corner of the plot, potentially representing outliers, with a third also outside the boundary of our h-line.}
 
 ```{r}
@@ -532,6 +575,7 @@ Residual Values for Hypothesis 2") +
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure(QQ Plot Hypothesis 2): Observing the QQ plot shows that the model most closely follows a chi squared distribution with both the left hand and right hand tails tilting up.}
 
 ```{r}
@@ -558,7 +602,9 @@ hypo2_model_ave_hat = (3+1)/nrow(drop_na(hypo2_model_aug))
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Cooks Distance Plot:} 
+
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see one point that passes that threshold. To identify the points, they were marked by their .rownames identifier created via augment() and their rounded .cooksd value  in black text. Visually inspecting the graph, while numerous points have high leverage, there are few points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. Two data points are particularly notable for their comparatively large Cook's Distance, seen in the upper portion of the plot. These points were manually marked by their .rownames identifier created via augment() and their rounded .cooksd value also, though in purple text to distinguish them. For these reasons, the three total points mentioned were labelled as outliers and removed. Additional graphing is available in the Supplemental section for Hypothesis Two at the end of this document.
 
 ### Post-hoc Analysis
@@ -607,7 +653,9 @@ ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,M
   Project3_theme()
 
 ```
+
 \emph{Figure (Moca vs. Attention): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
+
 ```{r Moca Remember}
 ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
   geom_boxplot(show.legend = FALSE, outlier.shape = NA)+
@@ -619,6 +667,7 @@ ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Memory): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
 
 ```{r Moca Indecisiveness}
@@ -633,6 +682,7 @@ ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Indecisiveness): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
 
 ```{r Moca Concentration}
@@ -647,6 +697,7 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Concentration): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
 
 ### \emph{Question 1 Figure Observations:}
@@ -672,10 +723,13 @@ Mocamod <- lm(MoCA_dropna,
 kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
 kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
 ```
+
 ### \emph{Model 1 Interpretation:}
+
 Due to all the missing values, only 27 observations ended up contributing to the model itself. The only category that had any statistical significance according to the Anova was paying attention, indicating that the one of the means for paying attention may be statistically different. When looking at the t-test, however, none of the coefficients are significant so this model cannot be used to make any real conclusions. It is important to note that the lack of objectiveness in self-reported scores would have led to questions about the validity of conclusions if there had not also been a lack of responses. This leads to expanding to further exploration using objective, numerical scores from Flanker's test (testing attention and concentration) and the Picture Sequence Memory Test (testing episodic memory) and their relationship to Moca Scores. This analysis will be shown later in the report.
 
 ### Question 1 continued
+
 It would still be interesting to understand if different scores for memory, attention and concentration, which are impacted by Mild Cognitive Impairment (MCI), have an impact on Moca scores. This time, we will use Flanker's Test and the Picture Sequence Memory Test to see if these factors have an impact on Moca scores, which can implicate MCI if the score is below 25. However, Age can also be a confounding factor on memory and attention and potentially Moca scores as well, so it will be included in this model.
 
 ```{r exploratory-data-carpentry-expansion fig1,echo = FALSE}
@@ -723,9 +777,11 @@ ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Tes
 \emph{Figure (Moca vs. Picture Sequence Memory Test Scores): The linear fit shows an upward trend with Moca scores increasing with Picture sequence memory test scores. This will be tested in the model.}
 
 ### \emph{Expanded Analysis Question 1 Figure Observations:}
+
 In each figure, there seems to be general trends visible. Moca scores appear to decrease with age and increase with higher Flanker's and Picture Sequence Memory Tests. Referring to the figures in hypothesis 1 and 2, Flanker's Test and Picture Sequence Memory Test scores both decrease with increasing age, indicating that we should check for interactions in the model analyses or if it can be left out since every score decreases with age.
 
 ### Statistical Model for Unplanned Moca Analysis-Age Excluded:
+
 $$\begin{aligned}
 \hat{y}_{MoCA} = \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}?
 \end{aligned}$$
@@ -740,9 +796,11 @@ kable(glance(Moca_unplanned_mod))
 ```
 
 ### \emph{Model Excluding Age Interpretation:}
+
 This model shows Flanker's Test scores, which are proxy for attention, to insignificantly affect Moca Scores according to the Anova table. The Picture Sequence Memory Test, however, does show a significant impact in predicting Moca scores. Increased memory test scores correlate with increased moca scores, which makes sense as better memory and higher moca scores implies normal cognition as opposed to impaired cognition.
 
 ### Statistical Model for Unplanned Moca Analysis-Age Included:
+
 $$\begin{aligned}
 \hat{y}_{MoCA} = \beta_{Age}X_{Age}? + \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}?
 \end{aligned}$$
@@ -755,10 +813,13 @@ kable(Anova(Moca_unplanned_agemod))
 kable(tidy(Moca_unplanned_agemod))
 kable(glance(Moca_unplanned_agemod))
 ```
+
 ### \emph{Model Including Age Interpretation:}
+
 This model includes age to see if it also factors into predicting moca scores. According to the Anova table, neither Age nor Flanker's test scores significantly affect or change with Moca scores. As with the previous model, it shows the Picture Sequence Memory test scores increase with Moca scores.
 
 ### Statistical Model for Unplanned Moca Analysis-Age and Interactions Included:
+
 $$\begin{aligned}
 \hat{y}_{MoCA} = \beta_{Age}X_{Age}? &+ \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}? \\&+\beta_{FlankerTest:Age}X_{FlankerTest:Age}?+ \beta_{Pic.Seq.Mem.Test:Age}X_{Pic.Seq.Mem.Test:Age}?
 \end{aligned}$$
@@ -772,6 +833,7 @@ kable(Anova(Moca_unplanned_ageintmod))
 kable(tidy(Moca_unplanned_ageintmod))
 kable(glance(Moca_unplanned_ageintmod))
 ```
+
 ### \emph{Moca Model Including Age and Interactions Interpretation:}
 This model includes interactions with age to see if it also factors into predicting moca scores. According to the Anova table, age does not interact with the other predictors and actually renders the one significant lower order relative insignificant as well.
 
@@ -824,7 +886,9 @@ Moca_unplanned_aug %>%
   theme_bw()+
   Project3_theme()
 ```
-\emph{Cooks Distance Plot:} 
+
+\emph{Cooks Distance Plot:}
+
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we note three different points that pass that threshold. These points are emphasized by listing their Flanker's test scores. As such, we identified these points as outliers and removed them from our model.
 
 * In the supplements, you can see three cook's plots that show each point above dropped one at a time. In each plot, the two points that were not dropped were still identified as outliers, justifying the removal of all points. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
@@ -841,6 +905,7 @@ Moca_newremove_mod <- lm(newMoca_unplanned,
 kable(Anova(Moca_newremove_mod))
 kable(tidy(Moca_newremove_mod))
 ```
+
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
 
 ## Parahippocampal Volume and Memory
