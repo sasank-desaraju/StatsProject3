@@ -338,7 +338,7 @@ The ability to recall from memory, proxied by the NIH Picture Sequence Memory Te
 
 * Participants' responses on whether they spoke a second language contains 'NA' (no) and the value '1' (yes). These responses were changed to No ('NA') and yes ('1') in order to increase the number of data points for statistical analysis and was done under the assumption that the participants leaving no response meant that they did not speak a second language. Without this assumption, an analysis could not be made, as it would represent a factor with only a single factor level.
 
-* Participants' responses on the degree in which they are able to remember this as easily as usual (pac_remember -> Remembering) contains NAs and values between 1 and 5, with a higher number representing of greater agreement that their ability to remember things as easily as usual. NA responses were changed to '0' to represent the portion of patients who did not answer the question as their own factor level. Unfortunately without doing so, the patchiness of the dataset (i.e. missing values across different categories) prevented the creation of a linear model due to insufficient data points. In short, an insufficient number of patients answered every single question evaluated within our model.
+* Participants' responses on the degree in which they are able to remember this as easily as usual (pac_remember -> Remembering) contains NAs and values between 1 and 5, with a higher number representing of greater agreement that their ability to remember things as easily as usual. NA responses were changed to '0' to represent the portion of patients who did not answer the question as their own factor level. Unfortunately without doing so, the patchiness of the dataset (i.e. missing values across different categories) prevented the creation of a linear model due to insufficient data points. In short, an insufficient number of patients answered every single question evaluated within our model. In a later iteration of the model with some terms removed based on AIC comparisons via the drop1 command, this patchiness in the data is mitigated by the reduction in terms. Alternatively to the removal of terms, we could have binned factor level responses together to create a larger number of responses per factor level (e.g. combining the "2-3 hours" and "4-5 hours" levels into a single level of "2-5 hours"). We chose the former method as we always intended to do AIC comparisons for iterative dropping of terms regardless, and we did not want to overly simplify our factor levels by using excessively large or inclusive bins.
 
 ```{r}
 hypo_two_dataset <- tidy_dataset %>%
@@ -428,7 +428,8 @@ ggplot(drop_na(hypo_two_dataset,Education_Level,Pic_Seq_Mem_Test), aes(x = Educa
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Education Level vs. Picture Sequence Memory Test") +
   theme_bw() +
-  Project3_theme()
+  Project3_theme() +
+  theme(axis.text.x = element_text(size=10))
 ```
 \emph{Figure (Education Level vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between education level and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test.}
 
@@ -571,7 +572,6 @@ hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
                               str_c("(", `Pic_Seq_Mem_Test`, ", ", round(Parahippo_vol,digits = 3),")"), "")),
             nudge_y = 0.2, size=3) +
   ggtitle("Cooks Distance for Hypothesis 2 Model")+
-  
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
