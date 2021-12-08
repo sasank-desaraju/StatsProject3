@@ -15,7 +15,7 @@ library(tidymodels)
 library(emmeans)
 ```
 
-#Introduction: 
+# Introduction: 
 
 Cognitive impairment and/or cognitive decline effects approximately 10-20% of older adults in the United States (2019). For example, dementia and Alzheimer's disease can be catastrophic to a person's quality and values of life, leaving a family disheartened and heart broken. Therefore, it is vital to develop a deep understanding on the main causes and drivers behind the development of cognitive impairment and decline. Today, there are a variety of tests that can be drawn from to categorize and quantify the degree in which cognitive impairment/decline affects adults. In the statistical analysis and exploration below, the Flanker test, NIH Picture Sequence Memory test, and MoCA cognitive assessment will be examined under the effects from various behavioral and anatomical factors in an effort to better correlate solutions to improving and/or slowing down the development of cognitive impairments and decline.
 
@@ -23,7 +23,7 @@ Cognitive impairment and/or cognitive decline effects approximately 10-20% of ol
 dataset <- readRDS("./data/group3_data.rds")
 
 tidy_dataset <- dataset %>%
-  filter(redcap_event_name == "event_1_arm_1") %>%      # TODO: filtered out other events on 12/8
+  filter(redcap_event_name == "event_1_arm_1") %>%      
   select(-redcap_event_name) %>%
   rename(ID = record_id,
          Flanker_test = tb_flanker_unadj_ss,
@@ -57,14 +57,17 @@ tidy_dataset <- dataset %>%
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   ) %>%
+  mutate(R_Parahippo_vol = as.numeric(R_Parahippo_vol),
+         L_Parahippo_vol = as.numeric(L_Parahippo_vol),
+         Est_Tot_intra_cranial_vol = as.numeric(Est_Tot_intra_cranial_vol)) %>%
   mutate(Education_Level = fct_collapse(Education_Level,
-      "High School" = c("2"),
-      "Associate's" = c("3"),
-      "Bachelor's" = c("4"),
-      "Master's" = c("5"),
-      "Doctorate or Professional" = c("6")), 
-      .after = Education_Level)
-         
+                                        "High School" = c("2"),
+                                        "Associate's" = c("3"),
+                                        "Bachelor's" = c("4"),
+                                        "Master's" = c("5"),
+                                        "Doctorate or Professional" = c("6")), 
+         .after = Education_Level)
+
 Project3_theme <- function() {
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -363,8 +366,8 @@ Ha: NIH Picture Sequence Memory test scores will be significantly different for 
 
 #### Statistical Model:
 $$\begin{aligned}
-\hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
-\beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
+\hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}?
+\\ + \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
 \end{aligned}$$
 
 ### Visualization:
@@ -383,11 +386,11 @@ ggplot(drop_na(hypo_two_dataset,Age,Pic_Seq_Mem_Test), aes(x = Age,
 
 ```{r}
 #Musical Practice vs. Picture Sequence Memory Test
-ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
+ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("None","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
   geom_boxplot(show.legend = FALSE, outlier.shape=NA) +
   geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
-  scale_x_discrete(labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
+  scale_x_discrete(labels=c("None","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
   xlab("Musical Practice") +
   ylab("Picture Sequence Memory Test Score") +
   labs(color='Musical Practice') +
@@ -595,6 +598,7 @@ exp_dataset <- tidy_dataset
 
 ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
   geom_boxplot()+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Ability to Pay Attention") +
   ylab("MoCA Score") + 
@@ -607,6 +611,7 @@ ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,M
 ```{r Moca Remember}
 ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
   geom_boxplot()+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Ability to Remember") +
   ylab("MoCA Score") + 
@@ -620,6 +625,7 @@ ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,
 ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
   #scale_color_manual(values = Colorcols2)+
   geom_boxplot()+
+  stat_summary(fun.data = mean_se, color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Indecisiveness") +
   ylab("MoCA Score") +
@@ -634,6 +640,7 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
   #scale_color_manual(values = Colorcols)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
+  stat_summary(fun.data = mean_se, color = "black") +
   xlab("Concentration Difficulty") +
   ylab("MoCA Score") +
   ggtitle("MoCA Scores vs Concentration")+
@@ -647,8 +654,8 @@ In all 4 of these figures, it is evident there is not a lot of data available. M
 
 ### Statistical Model for Exploratory Moca Analysis:
 $$\begin{aligned}
-\hat{y}_{MoCA} = \beta_{PayAttention}X_{PayAttention}? + \beta_{Remebering}X_{Remembering}? +
-\beta_{Indecisiveness}X_{Indecisiveness}? + \beta_{Concentration}X_{Concentration}?
+\hat{y}_{MoCA} = \beta_{PayAttention}X_{PayAttention}? + \beta_{Remebering}X_{Remembering}?
+\\ + \beta_{Indecisiveness}X_{Indecisiveness}? + \beta_{Concentration}X_{Concentration}?
 \end{aligned}$$
 
 ```{r pressure, echo=FALSE}
@@ -686,7 +693,9 @@ ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Age): The linear fit shows a slightly downward trend with Moca scores decreasing with age. This will be tested in the model.}
+
 ```{r fig2}
 ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_Score))+
   geom_point()+
@@ -697,7 +706,9 @@ ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_S
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Flanker's Test Scores): The linear fit shows an upward trend with Moca scores increasing with Flanker's test. This will be tested in the model.}
+
 ```{r fig3}
 ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Test,Moca_Score))+
   geom_point()+
@@ -708,6 +719,7 @@ ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Tes
   theme_bw()+
   Project3_theme()
 ```
+
 \emph{Figure (Moca vs. Picture Sequence Memory Test Scores): The linear fit shows an upward trend with Moca scores increasing with Picture sequence memory test scores. This will be tested in the model.}
 
 ### \emph{Expanded Analysis Question 1 Figure Observations:}
@@ -793,6 +805,7 @@ ggplot(Moca_unplanned_aug, aes(sample=.std.resid))+
   theme_bw()+
   Project3_theme()
 ```
+
 ### \emph{Residual Inspection Interpretation:}
 Based on the qq plot above, the residuals appear normally distributed and we can proceed with the linear model created.
 
@@ -839,8 +852,8 @@ We sought to explore the relationship of short term memory and parahippocampal b
 The primary equation fitted in this analysis is:
 
 $$\begin{aligned}
-\hat{y}_{PSM Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
-\beta_{Sec. Lang.}X_{Sec. Lang.}? + \beta_{Education}X_{Education}? + \beta_{PHC Vol.}X_{PHC Vol.}?
+\hat{y}_{PSM Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}?
+\\ + \beta_{Sec. Lang.}X_{Sec. Lang.}? + \beta_{Education}X_{Education}? + \beta_{PHC-Vol.}X_{PHC-Vol.}?
 \end{aligned}$$
 
 ### Data Visualization
@@ -867,11 +880,12 @@ plt_vol_age <- ggplot(drop_na(volume_dataset,Age,Pic), aes(Age, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'Age',
+    title = 'Age vs Picture Sequence Memory Score',
     y = 'Picture Sequence Memory Test'
   )+
   theme_bw()+
   Project3_theme()
+
 
 # Music
 plt_vol_music <- ggplot(drop_na(volume_dataset,Music,Pic), aes(Music, Pic)) +
@@ -890,23 +904,27 @@ plt_vol_phc <- ggplot(drop_na(volume_dataset,Tot_PHC_normed,Pic), aes(Tot_PHC_no
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'PSM vs PHC Volume',
-    y = 'Picture Sequence Memory Test'
+    title = 'Picture Sequence Memory Score vs Parahippocampal Volume',
+    y = 'Picture Sequence Memory Test',
+    x = 'Parahippocampal Volume'
   )+
   theme_bw()+
   Project3_theme()
 
 
 # Second Language
-plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, Pic)) +
-  geom_boxplot() +
-  geom_jitter(height = 0) +
+plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, Pic, color=Sec_Lang)) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
   labs(
-    title = 'PSM vs Second Lanuage Presence',
-    y = 'Picture Sequence Memory Test'
+    title = 'Picture Sequence Memory Score vs Second Language',
+    y = 'Picture Sequence Memory Test',
+    x = 'Second Language'
   )+
   theme_bw()+
   Project3_theme()
+
 
 # Education
 plt_vol_education <- ggplot(drop_na(volume_dataset,Education,Pic), aes(Education, Pic)) +
@@ -938,14 +956,19 @@ Initial visualization highlighted some trends that will be explored. Memory tend
 ```{r}
 plt_vol_age
 ```
+
 \emph{Figure(Picture Sequence Memory vs Age): Using the picture sequence memory test as a proxy for memory, it appears that memory decreases with age.}
+
 ```{r}
 plt_vol_phc
 ```
+
 \emph{Figure(Memory vs Parahippocampal Volume): The figure shows a general upward trend where memory scores using the Picture Sequence Memory Test increases with increased normalized parahippocampal volume.}
+
 ```{r}
 plt_vol_sec_lang
 ```
+
 \emph{Figure(Memory vs Second Language ): The plot shows slightly higher memory values for the presence of a second language, however, it needs to be further inspected to determine if there is any real difference.}
 
 ### Initial Model Analysis
@@ -966,7 +989,6 @@ tbl_vol_full_mod_no_ints
 ```
 
 ### Residual and Outlier Analysis
-    TODO: raw + model, leverage, QQ, Cook's distance, residual vs. fitted, residual vs. each variable
 
 ```{r vol-orig-model-diagnostics}
 
@@ -1152,7 +1174,7 @@ change6 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_n
 
 vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Age:Tot_PHC_normed + Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education)
 kable(Anova(vol_int_7))
-glance(vol_int_7)$AIC
+#glance(vol_int_7)$AIC
 ```
 
 ```{r vol-mod-comp}
@@ -1247,12 +1269,13 @@ tbl_vol_hemi
 ```
 
 Interestingly, the PHC volumes are not significant when split apart. However, there is a large discrepancy between the contributions of the right and left hemispheres. The left PHC volume captures 100 times as much of the variation in the data as the right hemisphere does. Although neither effect is significant, this interesting result can inform future study into lateral asymmetries in brain function.
+
 # Supplementary Tables and Figures
 
 ## Planned Hypotheses
 
 ### Attention Keeping and Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
-```{r Cook's plots, remove one point at a time}
+```{r Cook plots, remove one point at a time 1}
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
   select(Flanker_test, Age, Track_Activity, Second_Language)
@@ -1282,6 +1305,7 @@ Flanker_firstaug <- augment(removed_model_one)
 Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
 ```
+
 
 ```{r, New Cook's plots for supplement}
 #Remove First Point
@@ -1335,7 +1359,8 @@ avg_hatFlanker3 = (1+3)/row_num_removed3
 ```
 
 ### Memory Recall and Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
-```{r Cook's plots, remove one point at a time}
+
+```{r Cook plots, remove one point at a time 2}
 # Remove identified outlier #1
 hypo2_firstoutlier <- hypo2_model_aug %>%
   filter(.rownames != 30) %>%
@@ -1381,7 +1406,7 @@ hypo2_firstoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier1, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier1), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, First Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, First Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1395,7 +1420,7 @@ hypo2_secondoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier2, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier2), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, Second Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, Second Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1409,7 +1434,7 @@ hypo2_thirdoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier3), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, Third Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, Third Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1423,15 +1448,17 @@ hypo2_all3outliers_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_all3outliers, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_all3outliers), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, All Three Outliers Removed")+
+  labs(title = "Cook\'s Distance, All Three Outliers Removed")+
   theme_bw()+
   Project3_theme()
 ```
+
 We removed the three outliers previously identified, e.g. (.rownames, Parahippo_vol) = (30, 0.210), (21, 0.171), (119, 0.069), and compared the resulting Cooks Distance plots. Removing each one individually did not meaningfully change the influence of the others, as seen by the first three Cook's Distance plots. The final Cook's Distance plot demonstrates the result when all three outliers are removed. Based on our previously assumed criteria for Cook's Distance and .hat value, several new potential outliers emerge (i.e. those points labeled). Given the patchiness of the data, we wanted to be judicious in removal of potential outliers so as to not exacerbate that weakness in the data but removing an excessive number of points. 
 
 ## Exploratory Analyses
 
 ### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
+
 ```{r Cooks plots remove one at a time}
 
 oneattime <- Moca_unplanned_aug %>%
