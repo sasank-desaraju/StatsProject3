@@ -1368,7 +1368,7 @@ oneattime <- Moca_unplanned_aug %>%
 
 firstone <- Moca_unplanned_aug %>%
   filter(.rownames != 30) %>%
-
+  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
 
 Moca_first <- lm(firstone,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
@@ -1377,7 +1377,7 @@ secondone <- Moca_unplanned_aug %>%
   filter(.rownames != 88) %>%
   select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
 
-Moca_second <- lm(secondone,  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
+Moca_second <- lm(secondone, 
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 
 thirdone <- Moca_unplanned_aug %>% 
