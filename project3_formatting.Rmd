@@ -258,6 +258,8 @@ kable(AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3))
 
 
 ```{r}
+hypo1_model_3_aug <- augment(hypo1_model_3)
+
 # Plot the std. residuals against the fitted values.
 ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
   geom_point()+
@@ -298,7 +300,8 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-    geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
+  geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca,
+                              # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers,
                               paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
@@ -306,7 +309,7 @@ hypo1_model_3_aug %>%
   
 ```
 \textbf{Cooks Distance Plot: }
-* Using the general rule of thumb for highlighting outliers of 3*(average Cooks Distance), we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+* Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
 
 ### Discussion:
 
@@ -537,8 +540,9 @@ hypo2_model_aug %>%
              linetype = 2, color="orange") +
   geom_vline(xintercept = 3 * hypo2_model_ave_hat,
              linetype = 2, color="red") +
-  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)),
-                              # 3*(average Cooks Distance) is a general rule of thumb for highlighting potential outliers
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca,
+                              # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers
                               str_c("(", `Pic_Seq_Mem_Test`, ", ", `Parahippo_vol`,")"), "")),
             nudge_y = 0.2, size=3, nudge_x = 0.035, color = "red") +
   labs(
@@ -557,7 +561,7 @@ hypo2_model_aug %>%
         plot.title = element_text(hjust = 0.5))
 ```
 \emph{Cooks Distance Plot:} 
-* Using the general rule of thumb for highlighting outliers of 3*(average Cooks Distance), we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+* Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
 
 ```{r}
 #Post-hoc
@@ -865,10 +869,13 @@ Moca_unplanned_aug %>%
   geom_vline(xintercept = 2 * avg_hatMoca, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * avg_hatMoca, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else(.cooksd>=(2/sqrt(rownumMoca)) | (.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
   theme_bw()+
   Project3_theme()
 ```
+\emph{Cooks Distance Plot:} 
+* Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we note three different points that pass that threshold. These points are emphasized by listing their Flanker's test scores. As such, we identified these points as outliers and removed them from our model.
+
 ```{r Cooks Moca Removal}
 newMoca_unplanned <- Moca_unplanned_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2*avg_hatMoca) %>%
