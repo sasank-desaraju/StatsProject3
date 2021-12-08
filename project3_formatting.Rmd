@@ -1,7 +1,7 @@
 ---
 title: "Project 3"
 author: "Sasank Desaraju, Phuc Pham, Natalie Geigel, Christopher Ludtka"
-date: "11/18/2021"
+date: "12/08/2021"
 output: pdf_document
 ---
 
@@ -138,8 +138,9 @@ ggplot(drop_na(hypo_one_dataset,Age, Flanker_test), aes(x = Age,
 ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_Practice, y = Flanker_test,
                                     color = Musical_Practice)) +
   geom_boxplot(show.legend = FALSE) +
-  geom_jitter(alpha = 0.6)+
+  geom_jitter(show.legend = FALSE, alpha = 0.6)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
+  scale_x_discrete(labels=c("None","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
   xlab("Musical Practice (Total Hrs per Week)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Musical Practice vs. Flanker's Test") + 
@@ -153,7 +154,7 @@ ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_
 ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_Language, y = Flanker_test,
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "green") +
+  stat_summary(fun.data = mean_se, color = "purple") +
   geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
   xlab("Second Language(s)") +
   ylab("Flanker's Test Unadjusted Score")  + 
@@ -285,7 +286,7 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", .rownames, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", .rownames, ", ", round(.cooksd, digits = 3),")"),'')),  nudge_y = 0.3, nudge_x = 0.04, size=3) +
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
@@ -1282,7 +1283,7 @@ Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
 ```
 
-```{r New Cook's plots for supplement}
+```{r, New Cook's plots for supplement}
 #Remove First Point
 row_num_removed1 <- nrow(drop_na(Flanker_firstaug))
 avg_hatFlanker1 = (1+3)/row_num_removed1
@@ -1432,6 +1433,7 @@ We removed the three outliers previously identified, e.g. (.rownames, Parahippo_
 
 ### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
 ```{r Cooks plots remove one at a time}
+
 oneattime <- Moca_unplanned_aug %>%
   filter(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca)
 
