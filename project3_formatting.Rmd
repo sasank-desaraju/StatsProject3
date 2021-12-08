@@ -729,7 +729,7 @@ Due to all the missing values, only 27 observations ended up contributing to the
 ## Question 1 continued
 It would still be interesting to understand if different scores for memory, attention and concentration, which are impacted by Mild Cognitive Impairment (MCI), have an impact on Moca scores. This time, we will use Flanker's Test and the Picture Sequence Memory Test to see if these factors have an impact on Moca scores, which can implicate MCI if the score is below 25. However, Age can also be a confounding factor on memory and attention and potentially Moca scores as well, so it will be included in this model.
 
-```{r exploratory-data-carpentry-expansion,echo = FALSE}
+```{r exploratory-data-carpentry-expansion fig1,echo = FALSE}
 
 #Model 1 Expanded: understanding factors as related to cognitive impairment compared to moca scores
 
@@ -752,6 +752,10 @@ ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
         strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
         plot.title = element_text(hjust = 0.5))
 
+
+```
+\emph{Figure (Moca vs. Age): The linear fit shows a slightly downward trend with Moca scores decreasing with age. This will be tested in the model.}
+```{r fig2}
 ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_Score))+
   geom_point()+
   geom_smooth(method = lm, formula = y~x)+
@@ -767,7 +771,9 @@ ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_S
         strip.text.y = element_text(colour = "white", face = "bold"),
         strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
         plot.title = element_text(hjust = 0.5))
-
+```
+\emph{Figure (Moca vs. Flanker's Test Scores): The linear fit shows an upward trend with Moca scores increasing with Flanker's test. This will be tested in the model.}
+```{r fig3}
 ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Test,Moca_Score))+
   geom_point()+
   geom_smooth(method = lm, formula = y~x)+
@@ -784,44 +790,11 @@ ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Tes
         strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
         plot.title = element_text(hjust = 0.5))
 
-ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Age), aes(Age,Pic_Seq_Mem_Test))+
-  geom_point()+
-  geom_smooth(method = lm, formula = y~x)+
-  ggtitle("Age vs Memory Scores")+
-  theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-
-ggplot(drop_na(Moca_unplanned,Flanker_test, Age), aes(Age,Flanker_test))+
-  geom_point()+
-  geom_smooth(method = lm, formula = y~x)+
-  ggtitle("Age vs Flanker's Test")+
-  theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-
-
-
 ```
+\emph{Figure (Moca vs. Picture Sequence Memory Test Scores): The linear fit shows an upward trend with Moca scores increasing with Picture sequence memory test scores. This will be tested in the model.}
 
 ### \emph{Expanded Analysis Question 1 Figure Observations:}
-In each figure, there seems to be general trends visible. Moca scores appear to decrease with age and increase with higher Flanker's and Picture Sequence Memory Tests. Flanker's Test and Picture Sequence Memory Test scores both decrease with increasing age, indicating that we should check for interactions in the model analyses or if it can be left out since every score decreases with age.
+In each figure, there seems to be general trends visible. Moca scores appear to decrease with age and increase with higher Flanker's and Picture Sequence Memory Tests. Referring to the figures in hypothesis 1 and 2, Flanker's Test and Picture Sequence Memory Test scores both decrease with increasing age, indicating that we should check for interactions in the model analyses or if it can be left out since every score decreases with age.
 
 ```{r Moca Unplanned Models, echo = FALSE}
 #No age
