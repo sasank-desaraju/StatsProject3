@@ -19,64 +19,12 @@ library(tidymodels)
 
 #A Priori: 
 
-```{r copy-of-data-carpentry}
+```{r data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
 tidy_dataset <- dataset %>%
-  rename(ID = record_id,
-         Flanker_test = tb_flanker_unadj_ss,
-         Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
-         Moca_Score = moca_unadj,
-         Musical_Practice = champs_q17c,
-         Age = gi_age,
-         Education_Level = gi_degree,
-         Second_Language = gi_2ndlang_yn,
-         Track_Activity = pac_track_doing,
-         Paying_Attention = pac_pay_attention,
-         Concentration = pac_concentrate,
-         Indecisiveness = bdi_indecisiveness,
-         Remembering = pac_remember,
-         R_Parahippo_vol = fs_parahpc_vol_r,
-         L_Parahippo_vol = fs_parahpc_vol_l,
-         Est_Tot_intra_cranial_vol = fs_etiv
-         ) %>%
-  mutate(Second_Language = if_else(condition = is.na(Second_Language), "No", "Yes")) %>%
-  mutate(Musical_Practice = as_factor(Musical_Practice),
-         Education_Level = as_factor(Education_Level),
-         Second_Language = as_factor(Second_Language),
-         Track_Activity = as_factor(Track_Activity),
-         Paying_Attention = as_factor(Paying_Attention),
-         Concentration = as_factor(Concentration),
-         Indecisiveness = as_factor(Indecisiveness),
-         Remembering = as_factor(Remembering),
-         Moca_Score = as.numeric(Moca_Score),
-         Age = as.numeric(Age))
-         
-Project3_theme <- function() {
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-}
-  
-```
-
-# Planned hypotheses
-
-## Phuc stuff
-
-# Scientific Hypotheses (Planned Analysis):
-
-```{r planned-data-carpentry}
-dataset <- readRDS("./data/group3_data.rds")
-
-tidy_dataset <- dataset %>%
+  filter(redcap_event_name == "event_1_arm_1") %>%      # TODO: filtered out other events on 12/8
+  select(-redcap_event_name) %>%
   rename(ID = record_id,
          Flanker_test = tb_flanker_unadj_ss,
          Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
@@ -109,7 +57,27 @@ tidy_dataset <- dataset %>%
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   )
+         
+Project3_theme <- function() {
+  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
+        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
+        axis.title.x= element_text(colour="#0029AE",size=14),
+        axis.title.y= element_text(colour="#0029AE",size=14),
+        axis.text.x = element_text(colour="#3F918B",size=12),
+        axis.text.y = element_text(colour="#3F918B",size=12),
+        strip.text.x = element_text(colour = "white", face = "bold"),
+        strip.text.y = element_text(colour = "white", face = "bold"),
+        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
+        plot.title = element_text(hjust = 0.5))
+}
+  
 ```
+
+# Planned hypotheses
+
+## Phuc stuff
+
+# Scientific Hypotheses (Planned Analysis):
 
 ## Hypothesis 1:
 The ability to keep track of current tasks, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to keep track of current tasks in a distracting environment. 
