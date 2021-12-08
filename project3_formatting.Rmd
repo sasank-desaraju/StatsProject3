@@ -636,7 +636,9 @@ ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,M
   #scale_color_manual(values = Colorcols)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
-  ggtitle("Moca Scores vs Attention")+
+  xlab("Ability to Pay Attention") +
+  ylab("MoCA Score") + 
+  ggtitle("MoCA Scores vs Attention")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -653,7 +655,9 @@ ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,
   #scale_color_manual(values = Colorcols)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
-  ggtitle("Moca Scores vs Memory")+
+  xlab("Ability to Remember") +
+  ylab("MoCA Score") + 
+  ggtitle("MoCA Scores vs Memory")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -670,7 +674,9 @@ ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_
   #scale_color_manual(values = Colorcols2)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
-  ggtitle("Moca Scores vs Indecisiveness")+
+  xlab("Indecisiveness") +
+  ylab("MoCA Score") +
+  ggtitle("MoCA Scores vs Indecisiveness")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -687,7 +693,9 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
   #scale_color_manual(values = Colorcols)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
-  ggtitle("Moca Scores vs Concentration")+
+  xlab("Concentration Difficulty") +
+  ylab("MoCA Score") +
+  ggtitle("MoCA Scores vs Concentration")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -739,7 +747,9 @@ Moca_unplanned <- exp_dataset %>%
 ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
   geom_point()+
   geom_smooth(method = lm, formula = y~x)+
-  ggtitle("Moca Scores vs Age")+
+  xlab("Age") +
+  ylab("MoCA Score") +
+  ggtitle("MoCA Scores vs Age")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -759,7 +769,9 @@ ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
 ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_Score))+
   geom_point()+
   geom_smooth(method = lm, formula = y~x)+
-  ggtitle("Flanker's Test vs Moca Scores")+
+  xlab("Flanker's Test Score") +
+  ylab("MoCA Score") +
+  ggtitle("Flanker's Test vs MoCA Scores")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -777,7 +789,9 @@ ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_S
 ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Test,Moca_Score))+
   geom_point()+
   geom_smooth(method = lm, formula = y~x)+
-  ggtitle("Picture Memory Test vs Moca Scores")+
+  xlab("Picture Memory Test Score") +
+  ylab("MoCA Score") +
+  ggtitle("Picture Memory Test vs MoCA Scores")+
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
