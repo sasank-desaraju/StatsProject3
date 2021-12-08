@@ -1119,29 +1119,43 @@ ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid, size=.cooksd))+
 
 # resid. vs fitted
 plt_vol_stdres_fitted <- ggplot(full_vol_model_no_int_aug, aes(.fitted, .std.resid)) +
-  geom_point()
+  geom_point()+
+  theme_bw()+
+  Project3_theme()
 
 # resid vs age
 plt_vol_stdres_age <- ggplot(full_vol_model_no_int_aug, aes(Age, .std.resid)) +
-  geom_point()
+  geom_point()+
+  Project3_theme()
 
 # resid vs PHC
 plt_vol_stdres_phc <- ggplot(full_vol_model_no_int_aug, aes(Tot_PHC_normed, .std.resid)) +
-  geom_point()
+  geom_point()+
+  theme_bw()+
+  Project3_theme()
 
 # resid vs music
 plt_vol_stdres_music <- ggplot(full_vol_model_no_int_aug, aes(Music, .std.resid)) +
-  geom_jitter(height = 0)
+  geom_jitter(height = 0)+
+  theme_bw()+
+  Project3_theme()
+  
 
 # resid vs second lang
 plt_vol_stdres_sec_lang <- ggplot(full_vol_model_no_int_aug, aes(Sec_Lang, .std.resid)) +
   geom_jitter(height = 0) +
-  stat_summary()
+  stat_summary()+
+  theme_bw()+
+  Project3_theme()
+  
 
 # resid vs education
 plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .std.resid)) +
   geom_jitter(height = 0) +
-  stat_summary()
+  stat_summary()+
+  theme_bw()+
+  Project3_theme()
+  
 ```
 
 Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
@@ -1272,7 +1286,9 @@ plt_vol_comp_pic <- ggplot(compare_pic_data, aes(value, color = name)) +
   geom_density() +
   labs(
     title = 'Adjusting for age'
-  )
+  )+
+  theme_bw()+
+  Project3_theme()
 ```
 
 Further exploration was conducted into the relationship between PSM Test scores and PHC volume. The effect of age was removed from the PSM Test scores and this adjusted metric was analyzed. The below plot shows the spread of PSM Test scores before and after adjusting for age.
