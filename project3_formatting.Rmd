@@ -906,6 +906,10 @@ Moca_unplanned_aug %>%
 \emph{Cooks Distance Plot:} 
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we note three different points that pass that threshold. These points are emphasized by listing their Flanker's test scores. As such, we identified these points as outliers and removed them from our model.
 
+* In the supplements, you can see three cook's plots that show each point above dropped one at a time. In each plot, the two points that were not dropped were still identified as outliers, justifying the removal of all points. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
+
+### New Moca Model with outliers removed:
+
 ```{r Cooks Moca Removal}
 newMoca_unplanned <- Moca_unplanned_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2*avg_hatMoca) %>%
@@ -915,18 +919,15 @@ Moca_newremove_mod <- lm(newMoca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 kable(Anova(Moca_newremove_mod))
 kable(tidy(Moca_newremove_mod))
-kable(glance(Moca_newremove_mod))
 
-Moca_newremove_aug <- augment(Moca_newremove_mod)
-ggplot(Moca_newremove_aug, aes(sample=.std.resid))+
-  stat_qq()+
-  stat_qq_line(color = "orange")+
-  ggtitle("Inspecting Residuals of Model")+
-  theme_bw()+
-  Project3_theme()
 
 
 ```
+\emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
+
+
+
+
 ## Parahippocampal Volume and Memory
 
 *Planned exploratory analysis*
@@ -1304,4 +1305,92 @@ plt_vol_phc
 plt_vol_sec_lang
 plt_vol_education
 plt_vol_age_edu
+```
+
+
+# Supplementary Tables and Figures
+
+
+
+### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
+```{r Cooks plots remove one at a time}
+
+
+oneattime <- Moca_unplanned_aug %>%
+  filter(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca)
+
+firstone <- Moca_unplanned_aug %>%
+  filter(.rownames != 30) %>%
+  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
+
+Moca_first <- lm(firstone,
+                         formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
+
+secondone <- Moca_unplanned_aug %>%
+  filter(.rownames != 88) %>%
+  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
+
+Moca_second <- lm(secondone,
+                         formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
+
+thirdone <- Moca_unplanned_aug %>% 
+  filter(.rownames != 127) %>%
+  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
+
+Moca_third <- lm(thirdone,
+                         formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
+
+kable(AIC(Moca_first,Moca_second,Moca_third))
+
+Moca_firstaug <- augment(Moca_first)
+Moca_secondaug <- augment(Moca_second)
+Moca_thirdaug <- augment(Moca_third)
+
+```
+
+```{r New cooks plots for supplement}
+rownumMoca1 <- nrow(Moca_firstaug)
+avg_hatMoca1 = (1+2)/rownumMoca1
+
+Moca_firstaug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hatMoca1, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hatMoca1, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hatMoca1, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
+  theme_bw()+
+  Project3_theme()
+
+rownumMoca2 <- nrow(Moca_secondaug)
+avg_hatMoca2 = (1+2)/rownumMoca2
+
+Moca_secondaug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hatMoca2, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hatMoca2, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hatMoca2, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca2), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
+  theme_bw()+
+  Project3_theme()
+
+
+rownumMoca3 <- nrow(Moca_thirdaug)
+avg_hatMoca3 = (1+2)/rownumMoca3
+
+Moca_thirdaug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hatMoca3, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hatMoca3, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hatMoca3, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
+  theme_bw()+
+  Project3_theme()
+
+
 ```
