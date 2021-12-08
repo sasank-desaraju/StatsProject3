@@ -595,7 +595,7 @@ hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
 #       caption = 'Post-Hoc Analysis of Activity using FDR')
 ```
 
-```
+
 
 # Exploratory analysis
 
