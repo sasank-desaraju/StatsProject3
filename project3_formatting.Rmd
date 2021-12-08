@@ -147,33 +147,35 @@ $$\begin{aligned}
 ### Visualization:
 ```{r}
 #Age vs. Flanker's Test
-ggplot(data = hypo_one_dataset, aes(x = Age,
+ggplot(drop_na(hypo_one_dataset,Age, Flanker_test), aes(x = Age,
                                     y = Flanker_test)) +
   geom_point() +
   geom_smooth(method = lm, formula = `y` ~ `x`, se = F) +
   xlab("Age") +
   ylab("Flanker's Test Unadjusted Score") + 
   labs(title = "Age vs. Flanker's Test") + 
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  theme_bw()+
+  Project3_theme()
 ```
 \emph{Figure (Age vs. Flanker's Test): There is a negative correlation between the participants' age and unadjusted scores from Flanker's test. The linear regression overlayed over the scatterplot suggests that the relationship between the two variables are not strong, as points are spread out along the y-axis.}
 
 ```{r}
 #Musical Practice vs. Flanker's Test
-ggplot(data = hypo_one_dataset, aes(x = Musical_Practice, y = Flanker_test,
+ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_Practice, y = Flanker_test,
                                     color = Musical_Practice)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "black") +
   xlab("Musical Practice (Total Hrs per Week)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Musical Practice vs. Flanker's Test") + 
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  theme_bw()+
+  Project3_theme()
 ```
 \emph{Figure (Musical vs. Flanker's Test): The boxplot suggests that there is not a significant relationship and variation between the participants' unadjusted scores from the Flanker's test and how many hours per week they conducted musical practice. This can be visually observed through each group's mean being similar in position to each on the y-axis and following no trend.}
 
 ```{r}
 #Second Language vs. Flanker's Test
-ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
+ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_Language, y = Flanker_test,
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "green") +
@@ -181,33 +183,41 @@ ggplot(data = hypo_one_dataset, aes(x = Second_Language, y = Flanker_test,
   xlab("Second Language(s)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Second Language(s) vs. Flanker's Test") + 
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  theme_bw()+
+  Project3_theme()
 ```
 \emph{Figure (Second Language Speaking vs. Flanker's Test): The boxplot shows that there is some impact of speaking a second language on participants' unadjusted Flanker's test scores. The boxplot that represents speaking a second language has a mean and overall quartile score values higher than the boxplot that represents not speaking a second language.}
 
 ```{r}
 #Education Level vs. Flanker's Test
-ggplot(data = hypo_one_dataset, aes(x = Education_Level, y = Flanker_test,
+ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education_Level, y = Flanker_test,
                                     color = Education_Level)) +
   geom_boxplot(show.legend = FALSE) +
+  geom_jitter(alpha= 0.6)+
   stat_summary(fun.data = mean_se, color = "black") +
   xlab("Highest Academic Degree") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Highest Academic Degree vs. Flanker's Test") + 
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  theme_bw()+
+  Project3_theme()
 ```
 \emph{Figure (Highest Academic Degree vs. Flanker's Test): The boxplots can be visually observed to suggest that the degree of education do not have a significant effect on the unadjusted Flanker's test scores of participants. Specifically, the means of each boxplot are relatively similar and do not deviate much from each other.}
 
 ```{r}
 #Keep Track of Current Tasks vs. Flanker's Test
-ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
-                                    color = Track_Activity)) +
+ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Activity, y = Flanker_test,
+                                                                  color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "black") +
+  geom_jitter(height = 0, alpha = 0.6)+
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
-  labs(title = "Keep Track of Current Tasks vs. Flanker's Test") + 
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  labs(title = "Keep Track of Current Tasks vs. Flanker's Test")+
+  theme_bw()+
+  Project3_theme()
+
+testerdata <- hypo_one_dataset %>%
+  drop_na(Track_Activity,Flanker_test) %>%
+  filter(Track_Activity == 2)
 ```
 \emph{Figure (Keep Track of Current Tasks vs. Flanker's Test): The boxplot can be visually observed to suggest that there is not a significant effect between the ability to keep track of current tasks and the unadjusted Flanker's test scores of participants. Specifically, the mean of each boxplot do not follow a trend with increasing degree in ability to keep track of current tasks.} 
 
@@ -263,12 +273,11 @@ hypo1_model_3_aug <- augment(hypo1_model_3)
 # Plot the std. residuals against the fitted values.
 ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
   geom_point()+
-  #geom_smooth(method = loess, formula = `y` ~ `x`, se = F)+
   geom_smooth(method=lm, formula = `y` ~ `x`)+
   geom_hline(yintercept = c(-2, 2), linetype=2, size=0.5)+
   labs(title = "Residuals vs. Fitted Values for Hypothesis One")+
-  theme(plot.title = element_text(size = rel(1),
-                                hjust = 0.5))
+  theme_bw()+
+  Project3_theme()
 ```
 \textbf{Residuals vs. Fitted Values Plot:}
 * Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.
