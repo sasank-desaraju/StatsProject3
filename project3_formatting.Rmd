@@ -241,7 +241,7 @@ hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
-Model 2 (Age & Education Removed): Anova (type 2) test
+### Model 2 (Age & Education Removed): Anova (type 2) test
 * The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
@@ -438,7 +438,7 @@ ggplot(data = hypo_two_dataset %>% filter(!is.na(Second_Language)), aes(x = Seco
 
 ```{r}
 #Education Level vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset %>% filter(!is.na(Education_Level)), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
+ggplot(drop_na(hypo_two_dataset,Education_Level,Pic_Seq_Mem_Test), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
                                     color = Education_Level)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "black") +
@@ -447,13 +447,13 @@ ggplot(data = hypo_two_dataset %>% filter(!is.na(Education_Level)), aes(x = Educ
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Education Level vs. Picture Sequence Memory Test") +
   theme_bw() +
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  Project3_theme()
 ```
 \emph{Figure (Education Level vs. Picture Sequence Memory Test): The boxplot does not appear to suggest that there is a significant effect between education level and the Picture Sequence Memory test scores of participants. Specifically, the means of each boxplot do not appear to follow a trend with increasing score in the Picture Sequence Memory Test.}
 
 ```{r}
 #Parahippocampal Volume vs. Picture Sequence Memory Test
-ggplot(data = hypo_two_dataset, aes(x = Parahippo_vol,
+ggplot(drop_na(hypo_two_dataset,Parahippo_vol,Pic_Seq_Mem_Test), aes(x = Parahippo_vol,
                                     y = Pic_Seq_Mem_Test)) +
   geom_point() +
   geom_smooth(method = lm, formula = `y` ~ `x`, se = F) + 
@@ -461,7 +461,7 @@ ggplot(data = hypo_two_dataset, aes(x = Parahippo_vol,
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Parahippocampal Volume vs. Picture Sequence Memory Test") +
   theme_bw() +
-  theme(plot.title = element_text(size = rel(1.2), hjust = 0.5))
+  Project3_theme()
 ```
 \emph{Figure (Parahippocampal Volume vs. Picture Sequence Memory Test): There is a positive correlation between the participants' fractional parahippocampal volume and scores from the Picture Sequence Memory test. This may indicate that greater fractional volume of the parahippocampus region represents a better memory ability for picture sequencing.}
 
@@ -470,7 +470,6 @@ ggplot(data = hypo_two_dataset, aes(x = Parahippo_vol,
 ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Remembering, y = Pic_Seq_Mem_Test,
                                     color = Remembering)) +
   geom_boxplot(show.legend = FALSE) +
-  stat_summary(fun.data = mean_se, color = "black") +
   scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
   xlab("Ability to Remember Things as Easily as Usual") +
   ylab("Picture Sequence Memory Test Score") +
@@ -535,15 +534,15 @@ Residuals vs. Fitted Values Plot:
 
 ```{r}
 #Hypothesis Two QQ plot
-hypo2_model_aug %>%
-    ggplot(aes(sample= .std.resid)) +
+
+ggplot(drop_na(hypo2_model_aug),aes(sample= .std.resid)) +
   stat_qq() +
-  stat_qq_line() +
+  stat_qq_line(color = "orange") +
   labs(
-title = "QQ Plot showing Distribution of Standard
-Residual Values for Hypothesis Two") +
-ylab("Sample") +
-xlab("Theoretical") +
+    title = "QQ Plot showing Distribution of Standard
+Residual Values for Hypothesis 2") +
+  ylab("Sample") +
+  xlab("Theoretical") +
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
@@ -561,13 +560,11 @@ QQ Plot:
 
 ```{r}
 #Hypothesis Two Cooks Distance plot
-hypo2_model_ave_hat = (6+1)/nrow(hypo2_model_aug)
+hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
 #hat_ave = (k+1)/n
     #k = number of regressors, = 6 here
     #n = number of samples
-
-hypo2_model_aug %>% 
-  ggplot( aes( y = .std.resid,
+  ggplot(drop_na(hypo2_model_aug), aes( y = .std.resid,
                x = .hat, size = .cooksd )) +
   geom_point(shape = 1) +
   geom_vline(xintercept = hypo2_model_ave_hat, 
@@ -577,12 +574,11 @@ hypo2_model_aug %>%
   geom_vline(xintercept = 3 * hypo2_model_ave_hat,
              linetype = 2, color="red") +
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca,
+  geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*hypo2_model_ave_hat,
                               # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers
-                              str_c("(", `Pic_Seq_Mem_Test`, ", ", `Parahippo_vol`,")"), "")),
-            nudge_y = 0.2, size=3, nudge_x = 0.035, color = "red") +
-  labs(
-    title = "Cooks Distance for Hypothesis 2 Model")+
+                              str_c("(", `Pic_Seq_Mem_Test`, ", ", round(Parahippo_vol,digits = 3),")"), "")),
+            nudge_y = 0.2, size=3) +
+  ggtitle("Cooks Distance for Hypothesis 2 Model")+
   
   theme_bw()+
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
@@ -595,6 +591,8 @@ hypo2_model_aug %>%
         strip.text.y = element_text(colour = "white", face = "bold"),
         strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
         plot.title = element_text(hjust = 0.5))
+  
+  #paste0("(",  ", ", round(BOLD, digits = 2),")"),'0')),  nudge_y = 0.2, size=4)+
 ```
 \emph{Cooks Distance Plot:} 
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
