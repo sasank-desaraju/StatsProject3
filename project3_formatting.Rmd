@@ -140,8 +140,8 @@ ggplot(drop_na(hypo_one_dataset,Age, Flanker_test), aes(x = Age,
 #Musical Practice vs. Flanker's Test
 ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_Practice, y = Flanker_test,
                                     color = Musical_Practice)) +
-  geom_boxplot(show.legend = FALSE) +
-  geom_jitter(alpha = 0.6)+
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha = 0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
   xlab("Musical Practice (Total Hrs per Week)") +
   ylab("Flanker's Test Unadjusted Score")  + 
@@ -596,9 +596,9 @@ exp_dataset <- tidy_dataset
 #Model 2: understanding factors as related to cognitive impairment compared to moca scores
 
 ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
-  geom_boxplot()+
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
-  geom_jitter(alpha=0.5, height = 0)+
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   xlab("Ability to Pay Attention") +
   ylab("MoCA Score") + 
   ggtitle("MoCA Scores vs Attention")+
@@ -609,9 +609,9 @@ ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,M
 \emph{Figure (Moca vs. Attention): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
 ```{r Moca Remember}
 ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
-  geom_boxplot()+
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
-  geom_jitter(alpha=0.5, height = 0)+
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   xlab("Ability to Remember") +
   ylab("MoCA Score") + 
   ggtitle("MoCA Scores vs Memory")+
@@ -623,9 +623,9 @@ ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,
 ```{r Moca Indecisiveness}
 ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
   #scale_color_manual(values = Colorcols2)+
-  geom_boxplot()+
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA)+
   stat_summary(fun.data = mean_se, color = "black") +
-  geom_jitter(alpha=0.5, height = 0)+
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   xlab("Indecisiveness") +
   ylab("MoCA Score") +
   ggtitle("MoCA Scores vs Indecisiveness")+
@@ -637,12 +637,12 @@ ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_
 ```{r Moca Concentration}
 ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Score,color = Concentration))+
   #scale_color_manual(values = Colorcols)+
-  geom_boxplot()+
-  geom_jitter(alpha=0.5, height = 0)+
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA)+
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun.data = mean_se, color = "black") +
-  xlab("Concentration Difficulty") +
+  xlab("Ability to Concentrate") +
   ylab("MoCA Score") +
-  ggtitle("MoCA Scores vs Concentration")+
+  ggtitle("MoCA Scores vs Ability to Concentrate")+
   theme_bw()+
   Project3_theme()
 ```
@@ -920,22 +920,24 @@ plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, P
 
 
 # Education
-plt_vol_education <- ggplot(drop_na(volume_dataset,Education,Pic), aes(Education, Pic)) +
-  geom_boxplot() +
-  geom_jitter(height = 0) +
+plt_vol_education <- ggplot(drop_na(volume_dataset,Education,Pic), aes(Education, Pic, color = Education)) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha=0.5,height = 0,show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
   labs(
-    title = 'PSM vs Education Level',
+    title = 'Picture Sequence Memory Score vs Education Level',
     y = 'Picture Sequence Memory Test'
   )+
   theme_bw()+
-  Project3_theme()
+  Project3_theme()+
+  theme(axis.text.x = element_text(size=9))
 
 # Age with Education
 plt_vol_age_edu <- ggplot(drop_na(volume_dataset,Age,Pic,Education), aes(Age, Pic, color = Education)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'PSM vs Age and Education',
+    title = 'Picture Sequence Memory Score vs Age & Education',
     y = 'Picture Sequence Memory Test'
   )+
   theme_bw()+
@@ -949,14 +951,19 @@ Initial visualization highlighted some trends that will be explored. Memory tend
 ```{r}
 plt_vol_age
 ```
+
 \emph{Figure(Picture Sequence Memory vs Age): Using the picture sequence memory test as a proxy for memory, it appears that memory decreases with age.}
+
 ```{r}
 plt_vol_phc
 ```
+
 \emph{Figure(Memory vs Parahippocampal Volume): The figure shows a general upward trend where memory scores using the Picture Sequence Memory Test increases with increased normalized parahippocampal volume.}
+
 ```{r}
 plt_vol_sec_lang
 ```
+
 \emph{Figure(Memory vs Second Language ): The plot shows slightly higher memory values for the presence of a second language, however, it needs to be further inspected to determine if there is any real difference.}
 
 ### Initial Model Analysis
