@@ -17,6 +17,8 @@ library(tidymodels)
 
 #Introduction: 
 
+Cognitive impairment and/or cognitive decline effects approximately 10-20% of older adults in the United States (2019). For example, dementia and Alzheimer's disease can be catastrophic to a person's quality and values of life, leaving a family disheartened and heart broken. Therefore, it is vital to develop a deep understanding on the main causes and drivers behind the development of cognitive impairment and decline. Today, there are a variety of tests that can be drawn from to categorize and quantify the degree in which cognitive impairment/decline affects adults. In the statistical analysis and exploration below, the Flanker test, NIH Picture Sequence Memory test, and MoCA cognitive assessment will be examined under the effects from various behavioral and anatomical factors in an effort to better correlate solutions to improving and/or slowing down the development of cognitive impairments and decline. 
+
 #A Priori: 
 
 ```{r data-carpentry}
