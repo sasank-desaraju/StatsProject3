@@ -954,7 +954,7 @@ plt_vol_sec_lang <- ggplot(volume_dataset, aes(Sec_Lang, Pic)) +
   )
 
 # Education
-plt_vol_education <- ggplot(volume_dataset, aes(Education, Pic)) +
+plt_vol_education <- ggplot(volume_dataset %>% select(Pic, Education) %>% drop_na(), aes(Education, Pic)) +
   geom_boxplot() +
   geom_jitter(height = 0) +
   labs(
@@ -963,7 +963,7 @@ plt_vol_education <- ggplot(volume_dataset, aes(Education, Pic)) +
   )
 
 # Age with Education
-plt_vol_age_edu <- ggplot(volume_dataset, aes(Age, Pic, color = Education)) +
+plt_vol_age_edu <- ggplot(volume_dataset %>% select(Age, Pic, Education) %>% drop_na(), aes(Age, Pic, color = Education)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
@@ -1105,19 +1105,6 @@ plt_vol_stdres_sec_lang <- ggplot(full_vol_model_no_int_aug, aes(Sec_Lang, .std.
 plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .std.resid)) +
   geom_jitter(height = 0) +
   stat_summary()
-
-
-# plt_vol_qq
-# plt_vol_hat_std
-# plt_vol_cooksd_std
-# plt_vol_stdres_fitted
-# plt_vol_stdres_age
-# plt_vol_stdres_phc
-# plt_vol_stdres_music
-# plt_vol_stdres_sec_lang
-# plt_vol_stdres_education
-
-
 ```
 
 Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
@@ -1143,18 +1130,54 @@ tbl_vol_full_mod_no_ints_out <- kable(tidy(Anova(full_vol_model_no_int_out)),
 
 vol_int_1 <- lm(vol_data_out, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
 
-vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
+vol_int_2 <- lm(vol_data_out, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
 
-vol_int_3 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+vol_int_3 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
 
 vol_int_4 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
 
-glance(vol_int_4)
+#glance(vol_int_4)
+```
+
+```{r vol-mod-drop1}
+vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Education + Age:Tot_PHC_normed + Age:Education + Tot_PHC_normed:Education + Sec_Lang:Education + Age:Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education + Tot_PHC_normed:Sec_Lang:Education + Age:Tot_PHC_normed:Sec_Lang:Education)
+change1 <- drop1(vol_int_7, ~. , test = 'F')
+#kable(change1)
+
+change2 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang, test = 'F')
+#kable(change2)
+
+change3 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang, test = 'F')
+#kable(change3)
+
+change4 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang, test = 'F')
+#kable(change4)
+
+change5 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+                  -Education, test = 'F')
+#kable(change5)
+
+change6 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+                  -Education -Age:Education, test = 'F')
+#kable(change6)
+
+# the below can't be done because it would have us remove Age, a main efect with higher-order relatives present
+# change7 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+#                   -Education -Age:Education -Age, test = 'F')
+# kable(change7)
 
 
-tbl_vol_comp_models <- kable(tibble(Model = c('Main effects only','Main effects and second order interactions of significant main effects','All effects', 'Main effects and Age-PHC-Education interaction', 'Age, PHC, Second Language, and their second order interactions'),
-       R_Squared = c(glance(full_vol_model_no_int_out)$r.squared,glance(vol_int_1)$r.squared,glance(vol_int_2)$r.squared,glance(vol_int_3)$r.squared,glance(vol_int_4)$r.squared),
-       AIC = c(glance(full_vol_model_no_int_out)$AIC,glance(vol_int_1)$AIC,glance(vol_int_2)$AIC,glance(vol_int_3)$AIC,glance(vol_int_4)$AIC)),
+vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Age:Tot_PHC_normed + Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education)
+kable(Anova(vol_int_7))
+glance(vol_int_7)$AIC
+
+
+```
+
+```{r vol-mod-comp}
+tbl_vol_comp_models <- kable(tibble(Model = c('Main effects only','Main effects and second order interactions of significant main effects','All effects', 'Main effects and Age-PHC-Education interaction', 'Age, PHC, Second Language, and their second order interactions', 'Parsimonious model'),
+       R_Squared = c(glance(full_vol_model_no_int_out)$r.squared,glance(vol_int_1)$r.squared,glance(vol_int_2)$r.squared,glance(vol_int_3)$r.squared,glance(vol_int_4)$r.squared,glance(vol_int_7)$r.squared),
+       AIC = c(glance(full_vol_model_no_int_out)$AIC,glance(vol_int_1)$AIC,glance(vol_int_2)$AIC,glance(vol_int_3)$AIC,glance(vol_int_4)$AIC,glance(vol_int_7)$AIC)),
        caption = 'Comaprison of Different Models')
 
 
@@ -1224,7 +1247,7 @@ plt_vol_age_edu
 
 # Supplementary Tables and Figures
 
-### Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
+## Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
 ```{r Cooks plots remove one at a time}
 
 full_remove_data <- hypo1_model_3_aug %>%
@@ -1392,4 +1415,17 @@ Moca_thirdaug %>%
   Project3_theme()
 
 
+```
+
+## Parahippocampal Volume and Memory
+
+### Basic Visualization
+
+```{r}
+plt_vol_age
+plt_vol_music
+plt_vol_phc
+plt_vol_sec_lang
+plt_vol_education
+plt_vol_age_edu
 ```
