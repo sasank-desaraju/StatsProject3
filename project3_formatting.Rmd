@@ -237,33 +237,33 @@ hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
-### Model 2 (Age & Education Removed): Anova (type 2) test
+\textbf{Model 2 (Age & Education Removed): Anova (type 2) test}
 * The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
 
-```{r}
-#Model Construction
-hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Second_Language + Musical_Practice)
-
-#Analysis and Comparison
-kable(tidy(hypo1_model_2), digits = 3)
-kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
-```
 ### Model 3 (Age & Education Removed): \emph{Anova (type 2) test}
 * The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
 
-* The full model (model 1) has the lowest AIC score; therefore it is conclusive to state it as the best model thus far. 
-```{r}
-#Model Construction
-hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Education_Level)
 
-#Analysis and Comparison
+```{r}
+#We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
+invisible(drop1(hypo1_model_1))
+#Dropping Musical_Practice gives best improvement to AIC, therefore dropped
+hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
+
+invisible(drop1(hypo1_model_3))
+#Dropping Education Level gives best improvement to AIC, therefore dropped
+hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
+
+invisible(drop1(hypo1_model_3))
+#Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
+
+#Anova of new model
 kable(tidy(hypo1_model_3), digits = 3)
 kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
-kable(AIC(hypo1_model_1, hypo1_model_3))
 ```
 
 
@@ -294,7 +294,7 @@ xlab("Theoretical") +
 theme_bw()+
 Project3_theme()
 
-hat_avg_model_3 = (2+1)/nrow(hypo1_model_3_aug) 
+hat_avg_model_3 = (3+1)/nrow(hypo1_model_3_aug) 
 ```
 \emph{Figure(QQ Plot Hypothesis 1 Model 3): Observing the QQ plot shows that the model most closely follows a Chi-squared distribution with the left and right hand tails tilting upwards. However, there is variation as the points at the tails are scewing away from the linear line.}
 
@@ -307,7 +307,7 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", .rownames, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
@@ -315,15 +315,15 @@ hypo1_model_3_aug %>%
 ```
 \textbf{Cooks Distance Plot: }
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see that four points pass the threshold. As such, we identified these points as outliers and removed them from the model.
-* The following points are then removed (Education_Level, Flankers_test): (3, 126.63), (3, 126.01), (3, 91.46), and (3, 81)
+* The following points are then removed (.rownames, .cooksd): (63, 0.098), (3, 126.01), (66, 0.075), and (199, 0.046)
 * In the supplements, you can see four cook's plots that show each point above dropped one at a time. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
 
 ```{r Cooks Flankers Removal}
 new_hypo1_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
-  select(Flanker_test, Age, Education_Level)
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-new_hypo1_model <- lm(new_hypo1_data, formula = Flanker_test ~ Age + Education_Level)
+new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
 kable(tidy(new_hypo1_model))
 kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
@@ -388,8 +388,9 @@ ggplot(drop_na(hypo_two_dataset,Age,Pic_Seq_Mem_Test), aes(x = Age,
 ```{r}
 #Musical Practice vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
-  geom_boxplot(show.legend = FALSE) +
-  #stat_summary(fun.data = mean_se, color = "black") +
+  geom_boxplot(show.legend = FALSE, outlier.shape=NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
   xlab("Musical Practice") +
   ylab("Picture Sequence Memory Test Score") +
@@ -404,7 +405,7 @@ ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musi
 #Second Language vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Second_Language, y = Pic_Seq_Mem_Test,
                                     color = Second_Language)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
   stat_summary(fun.data = mean_se, color = "green") +
   geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
   xlab("Second Language") +
@@ -419,7 +420,8 @@ ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Secon
 #Education Level vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Education_Level,Pic_Seq_Mem_Test), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
                                     color = Education_Level)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape= NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun.data = mean_se, color = "black") +
   scale_x_discrete(labels=c("High School","Associate's","Bachelor's","Master's","Doctorate/Professional")) +
   xlab("Education Level") +
@@ -448,7 +450,9 @@ ggplot(drop_na(hypo_two_dataset,Parahippo_vol,Pic_Seq_Mem_Test), aes(x = Parahip
 #Ability to Remember vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Remembering, y = Pic_Seq_Mem_Test,
                                     color = Remembering)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
   xlab("Ability to Remember Things as Easily as Usual") +
   ylab("Picture Sequence Memory Test Score") +
@@ -962,7 +966,7 @@ plt_vol_sec_lang <- ggplot(volume_dataset, aes(Sec_Lang, Pic)) +
   )
 
 # Education
-plt_vol_education <- ggplot(volume_dataset, aes(Education, Pic)) +
+plt_vol_education <- ggplot(volume_dataset %>% select(Pic, Education) %>% drop_na(), aes(Education, Pic)) +
   geom_boxplot() +
   geom_jitter(height = 0) +
   labs(
@@ -971,7 +975,7 @@ plt_vol_education <- ggplot(volume_dataset, aes(Education, Pic)) +
   )
 
 # Age with Education
-plt_vol_age_edu <- ggplot(volume_dataset, aes(Age, Pic, color = Education)) +
+plt_vol_age_edu <- ggplot(volume_dataset %>% select(Age, Pic, Education) %>% drop_na(), aes(Age, Pic, color = Education)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
@@ -1113,19 +1117,6 @@ plt_vol_stdres_sec_lang <- ggplot(full_vol_model_no_int_aug, aes(Sec_Lang, .std.
 plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .std.resid)) +
   geom_jitter(height = 0) +
   stat_summary()
-
-
-# plt_vol_qq
-# plt_vol_hat_std
-# plt_vol_cooksd_std
-# plt_vol_stdres_fitted
-# plt_vol_stdres_age
-# plt_vol_stdres_phc
-# plt_vol_stdres_music
-# plt_vol_stdres_sec_lang
-# plt_vol_stdres_education
-
-
 ```
 
 Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
@@ -1151,18 +1142,54 @@ tbl_vol_full_mod_no_ints_out <- kable(tidy(Anova(full_vol_model_no_int_out)),
 
 vol_int_1 <- lm(vol_data_out, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
 
-vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
+vol_int_2 <- lm(vol_data_out, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
 
-vol_int_3 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+vol_int_3 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
 
 vol_int_4 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
 
-glance(vol_int_4)
+#glance(vol_int_4)
+```
+
+```{r vol-mod-drop1}
+vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Education + Age:Tot_PHC_normed + Age:Education + Tot_PHC_normed:Education + Sec_Lang:Education + Age:Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education + Tot_PHC_normed:Sec_Lang:Education + Age:Tot_PHC_normed:Sec_Lang:Education)
+change1 <- drop1(vol_int_7, ~. , test = 'F')
+#kable(change1)
+
+change2 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang, test = 'F')
+#kable(change2)
+
+change3 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang, test = 'F')
+#kable(change3)
+
+change4 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang, test = 'F')
+#kable(change4)
+
+change5 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+                  -Education, test = 'F')
+#kable(change5)
+
+change6 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+                  -Education -Age:Education, test = 'F')
+#kable(change6)
+
+# the below can't be done because it would have us remove Age, a main efect with higher-order relatives present
+# change7 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_normed:Education:Sec_Lang -Education:Sec_Lang
+#                   -Education -Age:Education -Age, test = 'F')
+# kable(change7)
 
 
-tbl_vol_comp_models <- kable(tibble(Model = c('Main effects only','Main effects and second order interactions of significant main effects','All effects', 'Main effects and Age-PHC-Education interaction', 'Age, PHC, Second Language, and their second order interactions'),
-       R_Squared = c(glance(full_vol_model_no_int_out)$r.squared,glance(vol_int_1)$r.squared,glance(vol_int_2)$r.squared,glance(vol_int_3)$r.squared,glance(vol_int_4)$r.squared),
-       AIC = c(glance(full_vol_model_no_int_out)$AIC,glance(vol_int_1)$AIC,glance(vol_int_2)$AIC,glance(vol_int_3)$AIC,glance(vol_int_4)$AIC)),
+vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Age:Tot_PHC_normed + Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education)
+kable(Anova(vol_int_7))
+glance(vol_int_7)$AIC
+
+
+```
+
+```{r vol-mod-comp}
+tbl_vol_comp_models <- kable(tibble(Model = c('Main effects only','Main effects and second order interactions of significant main effects','All effects', 'Main effects and Age-PHC-Education interaction', 'Age, PHC, Second Language, and their second order interactions', 'Parsimonious model'),
+       R_Squared = c(glance(full_vol_model_no_int_out)$r.squared,glance(vol_int_1)$r.squared,glance(vol_int_2)$r.squared,glance(vol_int_3)$r.squared,glance(vol_int_4)$r.squared,glance(vol_int_7)$r.squared),
+       AIC = c(glance(full_vol_model_no_int_out)$AIC,glance(vol_int_1)$AIC,glance(vol_int_2)$AIC,glance(vol_int_3)$AIC,glance(vol_int_4)$AIC,glance(vol_int_7)$AIC)),
        caption = 'Comaprison of Different Models')
 
 
@@ -1210,65 +1237,80 @@ A model predicting PSM Test score using a general linear model predicted by age,
 
 ### Accounting for effects
 
-Further
+```{r vol-unplanned-1}
+unplanned_data_1 <- augment(full_vol_model_no_int_out) %>%
+  mutate(Pic_adj = Pic - full_vol_model_no_int_out$coefficients[['Age']] * Age)
+
+compare_pic_data <- unplanned_data_1 %>% pivot_longer(cols = c(Pic, Pic_adj))
+
+plt_vol_comp_pic <- ggplot(compare_pic_data, aes(value, color = name)) +
+  geom_density() +
+  labs(
+    title = 'Adjusting for age'
+  )
+```
+
+Further exploration was conducted into the relationship between PSM Test scores and PHC volume. The effect of age was removed from the PSM Test scores and this adjusted metric was analyzed. The below plot shows the spread of PSM Test scores before and after adjusting for age.
+
+```{r}
+plt_vol_comp_pic
+```
+
+Not only was the distribution shifted up in value, but the shape became more unimodal.
 
 ### Hemispheric Contributions of PHC Volume
 
-# Supplemental Tables and Figures
+```{r vol-unplanned-2}
+volume_dataset <- volume_dataset %>%
+  mutate(R_PHC_normed = R_PHC / Tot_Vol,
+         L_PHC_normed = L_PHC / Tot_Vol)
 
-## Parahippocampal Volume and Memory
+vol_hemi_model <- lm(volume_dataset, formula = Pic ~ Age + Music + R_PHC_normed + L_PHC_normed + Sec_Lang + Education)
 
-### Basic Visualization
+tbl_vol_hemi <- kable(tidy(Anova(vol_hemi_model)))
 
-```{r}
-plt_vol_age
-plt_vol_music
-plt_vol_phc
-plt_vol_sec_lang
-plt_vol_education
-plt_vol_age_edu
 ```
 
+The effect of the different hemispheres of the brain was also investigated. A model of main effects was created where, instead of normalized total PHC volume, the normalized individual hemisphere PHC volumes were used. The below table presents the type III ANOVA table for the model.
 
+```{r}
+tbl_vol_hemi
+```
+
+Interestingly, the PHC volumes are not significant when split apart. However, there is a large discrepancy between the contributions of the right and left hemispheres. The left PHC volume captures 100 times as much of the variation in the data as the right hemisphere does. Although neither effect is significant, this interesting result can inform future study into lateral asymmetries in brain function.
 # Supplementary Tables and Figures
 
-### Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
+## Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
 ```{r Cooks plots remove one at a time}
 
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
-  select(Flanker_test, Age, Education_Level)
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
 remove_first <- hypo1_model_3_aug %>%
-  filter(.rownames != 134) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 63) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_one <- lm(data = remove_first, Flanker_test ~ Age + Education_Level)
+removed_model_one <- lm(data = remove_first, Flanker_test ~ Age + Track_Activity + Second_Language)
 
 remove_second <- hypo1_model_3_aug %>%
-  filter(.rownames != 199) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 66) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_two <- lm(data = remove_second, Flanker_test ~ Age + Education_Level)
+removed_model_two <- lm(data = remove_second, Flanker_test ~ Age + Track_Activity + Second_Language)
 
 remove_third <- hypo1_model_3_aug %>% 
-  filter(.rownames != 229) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 199) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_three <- lm(data = remove_third, Flanker_test ~ Age + Education_Level)
+removed_model_three <- lm(data = remove_third, Flanker_test ~ Age + Track_Activity + Second_Language)
 
-remove_four <- hypo1_model_3_aug %>% 
-  filter(.rownames != 252) %>%
-  select(Flanker_test, Age, Education_Level)
 
-removed_model_four <- lm(data = remove_four, Flanker_test ~ Age + Education_Level)
-
-kable(AIC(removed_model_one,removed_model_two, removed_model_three, removed_model_four))
+kable(AIC(removed_model_one,removed_model_two, removed_model_three))
 
 Flanker_firstaug <- augment(removed_model_one)
 Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
-Flanker_fourthaug <- augment(removed_model_four)
 ```
 
 ```{r New cooks plots for supplement}
@@ -1320,21 +1362,7 @@ Flanker_thirdaug %>%
   theme_bw()+
   Project3_theme()
 
-#Remove Fourth Point
-row_num_removed4 <- nrow(Flanker_fourthaug)
-avg_hatFlanker4 = (1+2)/row_num_removed4
 
-Flanker_fourthaug %>%
-  ggplot( aes(.hat, .std.resid, size=.cooksd))+
-  geom_point(shape = 1)+
-  geom_vline(xintercept = avg_hatFlanker4, linetype = 2)+
-  geom_vline(xintercept = 2 * avg_hatFlanker4, linetype = 2, color="orange")+
-  geom_vline(xintercept = 3 * avg_hatFlanker4, linetype = 2, color="red")+
-  geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatFlanker4),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
-  labs(title = "Cooks Distance for Row Name 252")+
-  theme_bw()+
-  Project3_theme()
 ```
 
 
@@ -1420,4 +1448,17 @@ Moca_thirdaug %>%
   Project3_theme()
 
 
+```
+
+## Parahippocampal Volume and Memory
+
+### Basic Visualization
+
+```{r}
+plt_vol_age
+plt_vol_music
+plt_vol_phc
+plt_vol_sec_lang
+plt_vol_education
+plt_vol_age_edu
 ```
