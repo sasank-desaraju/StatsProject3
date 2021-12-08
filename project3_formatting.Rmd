@@ -208,16 +208,7 @@ ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education
 ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Activity, y = Flanker_test,
                                                                   color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
-<<<<<<< HEAD
   geom_jitter(height = 0, alpha = 0.6)+
-
-=======
-  geom_jitter(height = 0, alpha = 0.6)
-
-ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
-                                    color = Track_Activity)) +
-  geom_boxplot(show.legend = FALSE)  +
->>>>>>> ae28bc0666a1c41c9b1869d8b2fba15e1d2ea1cc
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Keep Track of Current Tasks vs. Flanker's Test")+
@@ -277,10 +268,6 @@ kable(AIC(hypo1_model_1, hypo1_model_3))
 
 
 ```{r}
-<<<<<<< HEAD
-
-=======
->>>>>>> ae28bc0666a1c41c9b1869d8b2fba15e1d2ea1cc
 hypo1_model_3_aug <- augment(hypo1_model_3)
 
 # Plot the std. residuals against the fitted values.
@@ -322,17 +309,7 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-<<<<<<< HEAD
-
-  geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca,
-                              # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers,
-                              paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
-
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
-
-=======
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
->>>>>>> ae28bc0666a1c41c9b1869d8b2fba15e1d2ea1cc
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
