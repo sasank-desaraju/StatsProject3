@@ -904,7 +904,10 @@ volume_dataset <- exp_dataset %>%
          R_PHC = R_Parahippo_vol,
          L_PHC = L_Parahippo_vol,
          Tot_Vol = Est_Tot_intra_cranial_vol) %>%
-  mutate(Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
+  mutate(R_PHC = as.numeric(R_PHC),
+         L_PHC = as.numeric(L_PHC),
+         Tot_Vol = as.numeric(Tot_Vol),
+         Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
   mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
 
   # mutate(Education = fct_collapse(Education,
@@ -920,69 +923,90 @@ volume_dataset <- exp_dataset %>%
     
 ```{r vol-basic-vizualization}
 # Age
-plt_vol_age <- ggplot(volume_dataset, aes(Age, Pic)) +
+plt_vol_age <- ggplot(drop_na(volume_dataset,Age,Pic), aes(Age, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
     title = 'Age',
-    y = 'PSM Test'
-  )
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
 
 # Music
-plt_vol_music <- ggplot(volume_dataset, aes(Music, Pic)) +
+plt_vol_music <- ggplot(drop_na(volume_dataset,Music,Pic), aes(Music, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
     title = 'Musical Practice',
-    y = 'PSM Test'
-  )
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
 
 
 # PHC volume
-plt_vol_phc <- ggplot(volume_dataset, aes(Tot_PHC_normed, Pic)) +
+plt_vol_phc <- ggplot(drop_na(volume_dataset,Tot_PHC_normed,Pic), aes(Tot_PHC_normed, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'PHC Volume',
-    y = 'PSM Test'
-  )
+    title = 'PSM vs PHC Volume',
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
 
 
 # Second Language
-plt_vol_sec_lang <- ggplot(volume_dataset, aes(Sec_Lang, Pic)) +
+plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, Pic)) +
   geom_boxplot() +
   geom_jitter(height = 0) +
   labs(
-    title = 'Second Lanuage Presence',
-    y = 'PSM Test'
-  )
+    title = 'PSM vs Second Lanuage Presence',
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
 
 # Education
-plt_vol_education <- ggplot(volume_dataset %>% select(Pic, Education) %>% drop_na(), aes(Education, Pic)) +
+plt_vol_education <- ggplot(drop_na(volume_dataset,Education,Pic), aes(Education, Pic)) +
   geom_boxplot() +
   geom_jitter(height = 0) +
   labs(
-    title = 'Education Level',
-    y = 'PSM Test'
-  )
+    title = 'PSM vs Education Level',
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
 
 # Age with Education
-plt_vol_age_edu <- ggplot(volume_dataset %>% select(Age, Pic, Education) %>% drop_na(), aes(Age, Pic, color = Education)) +
+plt_vol_age_edu <- ggplot(drop_na(volume_dataset,Age,Pic,Education), aes(Age, Pic, color = Education)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'Age and Education',
-    y = 'PSM Test'
-  )
+    title = 'PSM vs Age and Education',
+    y = 'Picture Sequence Memory Test'
+  )+
+  theme_bw()+
+  Project3_theme()
+
+#str(volume_dataset)
 ```
 
 Initial visualization highlighted some trends that will be explored. Memory tends to decline with age, with agrees with common theories of age-related cognitive decline. Memory tends to increase with brain volume, which is reasonable if the PHC has an important role in memory. Finally, memory also increased with second language presence, providing weight to theories that emphasize the role of language acquisition in more general cognitive abilities. The plots for the discussed trends are below and other plots are provided in the Supplemental section.
 
 ```{r}
 plt_vol_age
+```
+\emph{Figure(Picture Sequence Memory vs Age): Using the picture sequence memory test as a proxy for memory, it appears that memory decreases with age.}
+```{r}
 plt_vol_phc
+```
+\emph{Figure(Memory vs Parahippocampal Volume): The figure shows a general upward trend where memory scores using the Picture Sequence Memory Test increases with increased normalized parahippocampal volume.}
+```{r}
 plt_vol_sec_lang
 ```
+\emph{Figure(Memory vs Second Language ): The plot shows slightly higher memory values for the presence of a second language, however, it needs to be further inspected to determine if there is any real difference.}
 
 ### Initial Model Analysis
 
@@ -1032,7 +1056,8 @@ plt_vol_hat_std <- ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid))+
   labs(
     caption = 'Lines represent the first 3 multiples of average .hat values'
   ) +
-  theme_bw()
+  theme_bw()+
+  Project3_theme()
 
 plt_vol_hat <- ggplot(full_vol_model_no_int_aug, aes(.hat, .resid))+
   geom_point()+
@@ -1045,7 +1070,8 @@ plt_vol_hat <- ggplot(full_vol_model_no_int_aug, aes(.hat, .resid))+
   labs(
     caption = 'Lines represent the first 3 multiples of average .hat values'
   ) +
-  theme_bw()
+  theme_bw()+
+  Project3_theme()
 
 # cooks.d
 plt_vol_cooksd_std <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .std.resid))+
@@ -1057,7 +1083,8 @@ plt_vol_cooksd_std <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .std.resid)
   labs(
     caption = 'Line represents critical Cook\'s Distance'
   ) +
-  theme_bw()
+  theme_bw()+
+  Project3_theme()
 
 plt_vol_cooksd <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .resid))+
   geom_point()+
@@ -1068,7 +1095,8 @@ plt_vol_cooksd <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .resid))+
   labs(
     caption = 'Line represents critical Cook\'s Distance'
   ) +
-  theme_bw()
+  theme_bw()+
+  Project3_theme()
 
 # leverage and cooks.d
 ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid, size=.cooksd))+
@@ -1078,7 +1106,8 @@ ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid, size=.cooksd))+
   geom_vline(xintercept = 3 * (5+1)/99, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >= 3 * mean(.hat), paste0("(", Age, ", ", Pic,")"),'')), nudge_y = 0.2, size=3)+
-  theme_bw()
+  theme_bw()+
+  Project3_theme()
 
 # geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >=3 * avg_hatMoca, paste0("(", Flanker_test, ", ", Moca_Score,")"),'')), nudge_y = 0.2, size=3)
 
