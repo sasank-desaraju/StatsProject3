@@ -55,7 +55,7 @@ tidy_dataset <- dataset %>%
 Project3_theme <- function() {
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="0029AE",size=14),
+        axis.title.x= element_text(colour="#0029AE",size=14),
         axis.title.y= element_text(colour="#0029AE",size=14),
         axis.text.x = element_text(colour="#3F918B",size=12),
         axis.text.y = element_text(colour="#3F918B",size=12),
@@ -302,7 +302,7 @@ hypo1_model_3_aug %>%
                               paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
-  theme(plot.title = element_text(size = rel(1), hjust = 0.5)) 
+  Project3_theme()
   
 ```
 \textbf{Cooks Distance Plot: }
@@ -865,11 +865,31 @@ Moca_unplanned_aug %>%
   geom_vline(xintercept = 2 * avg_hatMoca, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * avg_hatMoca, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >=3 * avg_hatMoca, paste0("(", Flanker_test, ", ", Moca_Score,")"),'')),  nudge_y = 0.2, size=3)+
+  geom_text(aes(label=if_else(.cooksd>=(2/sqrt(rownumMoca)) | (.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca), paste0("(", Flanker_test, ", ", Moca_Score,")"),'')),  nudge_y = 0.2, size=3)+
   theme_bw()+
   Project3_theme()
 ```
+```{r Cooks Moca Removal}
+newMoca_unplanned <- Moca_unplanned_aug %>%
+  filter(.cooksd<=3*mean(.cooksd) & .hat<= 2*avg_hatMoca) %>%
+  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
 
+Moca_newremove_mod <- lm(newMoca_unplanned,
+                         formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
+kable(Anova(Moca_newremove_mod))
+kable(tidy(Moca_newremove_mod))
+kable(glance(Moca_newremove_mod))
+
+Moca_newremove_aug <- augment(Moca_newremove_mod)
+ggplot(Moca_newremove_aug, aes(sample=.std.resid))+
+  stat_qq()+
+  stat_qq_line(color = "orange")+
+  ggtitle("Inspecting Residuals of Model")+
+  theme_bw()+
+  Project3_theme()
+
+
+```
 ## Parahippocampal Volume and Memory
 
 *Planned exploratory analysis*
