@@ -224,8 +224,8 @@ testerdata <- hypo_one_dataset %>%
 ## Model Interpretation and Analysis:
 
 \textbf{Model 1 (Full Model): Anova (type 2) test}
-* The terms of: Track Activity, Second Language, Education Level, and Musical Practice are insignificant (p-value >> alpha = 0.05).
-* The terms of: Age is significant (p-value << alpha = 0.05).
+* The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree), Second Language, Education Level, and Musical Practice are insignificant (p-value >> alpha = 0.05).
+* The terms of: Age and Track Activity (4th degree) is significant (p-value << alpha = 0.05).
 * A large degree of the model's variance is attributed to the age variable.
 * Only the participants' age can be conclusively determined to have a significant effect on the participants' unadjusted Flanker's test scores. 
 
@@ -237,24 +237,21 @@ hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
-\textbf{Model 2 (Age & Education Removed): Anova (type 2) test}
-* The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
-* No significant terms are contained in the model.
-* A large degree of the model's variance is attributed to the track activity variable.
-
-### Model 3 (Age & Education Removed): \emph{Anova (type 2) test}
-* The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
-* No significant terms are contained in the model.
-* A large degree of the model's variance is attributed to the track activity variable.
-
-
 ```{r}
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
 invisible(drop1(hypo1_model_1))
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
+kable(tidy(hypo1_model_2), digits = 3)
+kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
+```
+\textbf{Model 2 (Musical Practice Removed): Anova (type 2) test}
+* The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree), Second Language, and Education Level are insignificant (p-value >> alpha = 0.05).
+* Age and Track Activity (4th degree) is significant in the model (p-value < alpha = 0.05).
+* A large degree of the model's variance is attributed to the age variable.
 
-invisible(drop1(hypo1_model_3))
+```{r}
+invisible(drop1(hypo1_model_2))
 #Dropping Education Level gives best improvement to AIC, therefore dropped
 hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
 
@@ -265,7 +262,10 @@ invisible(drop1(hypo1_model_3))
 kable(tidy(hypo1_model_3), digits = 3)
 kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
 ```
-
+\textbf{Model 3 (Musical Practice and Education Level Removed): Anova (type 2) test}
+* The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree)and second language are insignificant (p-value >> alpha = 0.05).
+* Age and Track Activity (4th degree) are significant (p-value < alpha = 0.05).
+* A large degree of the model's variance is attributed to the age variable.
 
 ```{r}
 hypo1_model_3_aug <- augment(hypo1_model_3)
@@ -327,7 +327,7 @@ new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + A
 kable(tidy(new_hypo1_model))
 kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
-\emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that only the age coefficient is significant and we can conclude that as age increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores.}
+\emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
 
 ## Chris stuff
 
