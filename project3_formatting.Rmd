@@ -1291,7 +1291,7 @@ Flanker_secondaug %>%
   geom_vline(xintercept = 2 * avg_hatFlanker2, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * avg_hatFlanker2, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca2),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatFlanker2),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
   labs(title = "Cooks Distance for Row Name 199")+
   theme_bw()+
   Project3_theme()
@@ -1307,7 +1307,7 @@ Flanker_thirdaug %>%
   geom_vline(xintercept = 2 * avg_hatFlanker3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * avg_hatFlanker3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatFlanker3),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
   labs(title = "Cooks Distance for Row Name 229")+
   theme_bw()+
   Project3_theme()
@@ -1323,7 +1323,7 @@ Flanker_fourthaug %>%
   geom_vline(xintercept = 2 * avg_hatFlanker4, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * avg_hatFlanker4, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatFlanker4),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
   labs(title = "Cooks Distance for Row Name 252")+
   theme_bw()+
   Project3_theme()
