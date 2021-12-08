@@ -831,7 +831,14 @@ kable(tidy(Moca_newremove_mod))
 
 ### Introduction
 
-We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level. In this analysis, musical practice was considered as a numerical variable with blank responses being interpreted as a lack of musical practice. This exploratory analysis relates to the second planned hypothesis, predicting the same variable with many of the same predictors.
+We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level. In this analysis, musical practice was considered as a numerical variable with blank responses being interpreted as a lack of musical practice. This exploratory analysis relates to the second planned hypothesis, predicting the same variable with many of the same predictors. Novel additions in the exploratory section include creating a model including all interactions and then paring down to a parsimonious model.
+
+The primary equation fitted in this analysis is:
+
+$$\begin{aligned}
+\hat{y}_{PSM Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Sec. Lang.}X_{Sec. Lang.}? + \beta_{Education}X_{Education}? + \beta_{PHC Vol.}X_{PHC Vol.}?
+\end{aligned}$$
 
 ### Data Visualization
 
