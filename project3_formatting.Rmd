@@ -23,7 +23,7 @@ Cognitive impairment and/or cognitive decline effects approximately 10-20% of ol
 dataset <- readRDS("./data/group3_data.rds")
 
 tidy_dataset <- dataset %>%
-  filter(redcap_event_name == "event_1_arm_1") %>%      # TODO: filtered out other events on 12/8
+  filter(redcap_event_name == "event_1_arm_1") %>%      
   select(-redcap_event_name) %>%
   rename(ID = record_id,
          Flanker_test = tb_flanker_unadj_ss,
@@ -380,11 +380,11 @@ ggplot(drop_na(hypo_two_dataset,Age,Pic_Seq_Mem_Test), aes(x = Age,
 
 ```{r}
 #Musical Practice vs. Picture Sequence Memory Test
-ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
+ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("None","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
   geom_boxplot(show.legend = FALSE, outlier.shape=NA) +
   geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
-  scale_x_discrete(labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
+  scale_x_discrete(labels=c("None","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
   xlab("Musical Practice") +
   ylab("Picture Sequence Memory Test Score") +
   labs(color='Musical Practice') +
@@ -963,7 +963,6 @@ tbl_vol_full_mod_no_ints
 ```
 
 ### Residual and Outlier Analysis
-    TODO: raw + model, leverage, QQ, Cook's distance, residual vs. fitted, residual vs. each variable
 
 ```{r vol-orig-model-diagnostics}
 
