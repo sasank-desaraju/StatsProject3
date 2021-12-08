@@ -583,19 +583,16 @@ hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
 \emph{Cooks Distance Plot:} 
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
 
+### Post-hoc Analysis
+
 ```{r hypo2-post-hoc}
-# Second_Language_emm <- emmeans(new_hypo1_model, 
-#                  specs =  ~Second_Language)
-# kable(arrange(as_tibble(contrast(Second_Language_emm, method = "pairwise", adjust = "fdr")), p.value),
-#       caption = 'Post-Hoc Analysis of Second Language using FDR')
-# 
-# Track_Activity_emm <- emmeans(new_hypo1_model, 
-#                  specs =  ~Track_Activity)
-# kable(arrange(as_tibble(contrast(Track_Activity_emm, method = "pairwise", adjust = "fdr")), p.value),
-#       caption = 'Post-Hoc Analysis of Activity using FDR')
+Hypo2_Second_Language_emm <- emmeans(hypo2_model_dropped3,
+                 specs =  ~Second_Language)
+kable(arrange(as_tibble(contrast(Second_Language_emm, method = "pairwise", adjust = "fdr")), p.value),
+      caption = 'Post-Hoc Analysis of Second Language using FDR')
 ```
 
-
+A post-hoc analysis on the effect of second language in the most parsimonious model yielded that the there was a significant difference in Picture Sequence Memory Test score between the groups that did and did not speak a second language.
 
 # Exploratory analysis
 
