@@ -19,7 +19,6 @@ library(emmeans)
 
 Cognitive impairment and/or cognitive decline effects approximately 10-20% of older adults in the United States (2019). For example, dementia and Alzheimer's disease can be catastrophic to a person's quality and values of life, leaving a family disheartened and heart broken. Therefore, it is vital to develop a deep understanding on the main causes and drivers behind the development of cognitive impairment and decline. Today, there are a variety of tests that can be drawn from to categorize and quantify the degree in which cognitive impairment/decline affects adults. In the statistical analysis and exploration below, the Flanker test, NIH Picture Sequence Memory test, and MoCA cognitive assessment will be examined under the effects from various behavioral and anatomical factors in an effort to better correlate solutions to improving and/or slowing down the development of cognitive impairments and decline.
 
-
 ```{r data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
@@ -78,7 +77,6 @@ Project3_theme <- function() {
         strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
         plot.title = element_text(hjust = 0.5))
 }
-  
 ```
 
 # Planned hypotheses
@@ -104,7 +102,6 @@ hypo_one_dataset <- tidy_dataset %>%
          Education_Level,
          Track_Activity
   )
-  
 ```
 
 ### A Priori:
@@ -218,6 +215,7 @@ hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 ```{r}
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
 invisible(drop1(hypo1_model_1))
@@ -262,7 +260,6 @@ ggplot(hypo1_model_3_aug, aes(.fitted, .std.resid))+
 ```
 \emph{Figure(Residuals vs. Fitted Values Hypothesis 1 Model 3):Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.}
 
-
 ```{r}
 # QQ Plot
 ggplot(hypo1_model_3_aug, aes(sample=.std.resid))+
@@ -292,7 +289,6 @@ hypo1_model_3_aug %>%
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
-  
 ```
 \textbf{Cooks Distance Plot: }
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see that four points pass the threshold. As such, we identified these points as outliers and removed them from the model.
@@ -326,7 +322,6 @@ kable(arrange(as_tibble(contrast(Track_Activity_emm, method = "pairwise", adjust
 
 The above tables show post-hoc analyses of second language and activity in the model in the most recent ANOVA table. The interaction due to second language presence is not significant. Furthermore, none of the activity groups are significant from each other although the difference between the "zero hours" group and the "four hours" group is almost significant.
 
-
 ## Memory Recall
 
 ### Hypothesis 2: 
@@ -355,7 +350,6 @@ hypo_two_dataset <- tidy_dataset %>%
            (R_Parahippo_vol + L_Parahippo_vol) / Est_Tot_intra_cranial_vol)
 # Fractional parahippocampal volume (Parahippo_vol) is calculated as the sum of the left and right parahippocampal volumes as a fraction of the estimated total intracranial volume:
 # (Parahippo_vol = (fs_parahpc_vol_l + fs_parahpc_vol_r) / (fs_etiv)) 
-
 ```
 
 ### A Priori:
@@ -593,9 +587,7 @@ Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, suc
 
 ```{r exploratory-data-carpentry,echo = FALSE}
 exp_dataset <- tidy_dataset
-# %>%
-#   filter(redcap_event_name == "event_1_arm_1") %>%
-#   select(-redcap_event_name)
+
 # Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
 #Model 2: understanding factors as related to cognitive impairment compared to moca scores
@@ -649,7 +641,6 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
 ```
 \emph{Figure (Moca vs. Concentration): The boxplots here shows higher/best attention ability (5) has a higher trend of moca scores than 3 and 4. 2 is hard to consider into the interpretation because there is only one data point..}
 
-
 ### \emph{Question 1 Figure Observations:}
 In all 4 of these figures, it is evident there is not a lot of data available. Many of the self-reported scores were simply left blank. This is likely to  greatly impact the model created. General observations from the figures would indicate higher ability to concentrate and remember result in higher Moca Scores in the normal range above 25, with lower concentration and memory below 25 implying potential cognitive impairment. Still, a model needs to be created and tested to see if there is a relationship at all.
 
@@ -658,7 +649,6 @@ $$\begin{aligned}
 \hat{y}_{MoCA} = \beta_{PayAttention}X_{PayAttention}? + \beta_{Remebering}X_{Remembering}? +
 \beta_{Indecisiveness}X_{Indecisiveness}? + \beta_{Concentration}X_{Concentration}?
 \end{aligned}$$
-
 
 ```{r pressure, echo=FALSE}
 # If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
@@ -673,17 +663,14 @@ Mocamod <- lm(MoCA_dropna,
 
 kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
 kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
-
 ```
 ### \emph{Model 1 Interpretation:}
 Due to all the missing values, only 27 observations ended up contributing to the model itself. The only category that had any statistical significance according to the Anova was paying attention, indicating that the one of the means for paying attention may be statistically different. When looking at the t-test, however, none of the coefficients are significant so this model cannot be used to make any real conclusions. It is important to note that the lack of objectiveness in self-reported scores would have led to questions about the validity of conclusions if there had not also been a lack of responses. This leads to expanding to further exploration using objective, numerical scores from Flanker's test (testing attention and concentration) and the Picture Sequence Memory Test (testing episodic memory) and their relationship to Moca Scores. This analysis will be shown later in the report.
-
 
 ### Question 1 continued
 It would still be interesting to understand if different scores for memory, attention and concentration, which are impacted by Mild Cognitive Impairment (MCI), have an impact on Moca scores. This time, we will use Flanker's Test and the Picture Sequence Memory Test to see if these factors have an impact on Moca scores, which can implicate MCI if the score is below 25. However, Age can also be a confounding factor on memory and attention and potentially Moca scores as well, so it will be included in this model.
 
 ```{r exploratory-data-carpentry-expansion fig1,echo = FALSE}
-
 #Model 1 Expanded: understanding factors as related to cognitive impairment compared to moca scores
 
 Moca_unplanned <- exp_dataset %>%
@@ -737,8 +724,6 @@ Moca_unplanned_mod <- lm(Moca_unplanned,
 kable(Anova(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
 kable(tidy(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
 kable(glance(Moca_unplanned_mod))
-
-
 ```
 
 ### \emph{Model Excluding Age Interpretation:}
@@ -756,7 +741,6 @@ Moca_unplanned_agemod <- lm(Moca_unplanned,
 kable(Anova(Moca_unplanned_agemod))
 kable(tidy(Moca_unplanned_agemod))
 kable(glance(Moca_unplanned_agemod))
-
 ```
 ### \emph{Model Including Age Interpretation:}
 This model includes age to see if it also factors into predicting moca scores. According to the Anova table, neither Age nor Flanker's test scores significantly affect or change with Moca scores. As with the previous model, it shows the Picture Sequence Memory test scores increase with Moca scores.
@@ -765,6 +749,7 @@ This model includes age to see if it also factors into predicting moca scores. A
 $$\begin{aligned}
 \hat{y}_{MoCA} = \beta_{Age}X_{Age}? &+ \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}? \\&+\beta_{FlankerTest:Age}X_{FlankerTest:Age}?+ \beta_{Pic.Seq.Mem.Test:Age}X_{Pic.Seq.Mem.Test:Age}?
 \end{aligned}$$
+
 ```{r Age Interactions Mod,echo=FALSE}
 #Age Model, Interactions
 Moca_unplanned_ageintmod <- lm(Moca_unplanned,
@@ -773,13 +758,11 @@ Moca_unplanned_ageintmod <- lm(Moca_unplanned,
 kable(Anova(Moca_unplanned_ageintmod))
 kable(tidy(Moca_unplanned_ageintmod))
 kable(glance(Moca_unplanned_ageintmod))
-
 ```
 ### \emph{Moca Model Including Age and Interactions Interpretation:}
 This model includes interactions with age to see if it also factors into predicting moca scores. According to the Anova table, age does not interact with the other predictors and actually renders the one significant lower order relative insignificant as well.
 
 ```{r Compare Mod,echo=FALSE}
-
 kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
 
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
@@ -808,11 +791,7 @@ ggplot(Moca_unplanned_aug, aes(sample=.std.resid))+
   ggtitle("Inspecting Residuals of Model")+
   theme_bw()+
   Project3_theme()
-
-
-
 ```
-
 ### \emph{Residual Inspection Interpretation:}
 Based on the qq plot above, the residuals appear normally distributed and we can proceed with the linear model created.
 
@@ -847,7 +826,6 @@ Moca_newremove_mod <- lm(newMoca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 kable(Anova(Moca_newremove_mod))
 kable(tidy(Moca_newremove_mod))
-
 ```
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
 
@@ -855,7 +833,14 @@ kable(tidy(Moca_newremove_mod))
 
 ### Introduction
 
-We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level. In this analysis, musical practice was considered as a numerical variable with blank responses being interpreted as a lack of musical practice. This exploratory analysis relates to the second planned hypothesis, predicting the same variable with many of the same predictors.
+We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level. In this analysis, musical practice was considered as a numerical variable with blank responses being interpreted as a lack of musical practice. This exploratory analysis relates to the second planned hypothesis, predicting the same variable with many of the same predictors. Novel additions in the exploratory section include creating a model including all interactions and then paring down to a parsimonious model.
+
+The primary equation fitted in this analysis is:
+
+$$\begin{aligned}
+\hat{y}_{PSM Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
+\beta_{Sec. Lang.}X_{Sec. Lang.}? + \beta_{Education}X_{Education}? + \beta_{PHC Vol.}X_{PHC Vol.}?
+\end{aligned}$$
 
 ### Data Visualization
 
@@ -874,8 +859,6 @@ volume_dataset <- exp_dataset %>%
          Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
   mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
 ```
-
-    TODO: raw data plots, raw + summary
     
 ```{r vol-basic-vizualization}
 # Age
@@ -1169,8 +1152,6 @@ change6 <- drop1(vol_int_7, ~. -Age:Tot_PHC_normed:Education:Sec_Lang -Tot_PHC_n
 vol_int_7 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Age:Tot_PHC_normed + Tot_PHC_normed:Education + Age:Tot_PHC_normed:Education)
 kable(Anova(vol_int_7))
 glance(vol_int_7)$AIC
-
-
 ```
 
 ```{r vol-mod-comp}
@@ -1189,7 +1170,6 @@ tbl_vol_full_mod_no_ints_out1 <- kable(tidy(Anova(full_vol_model_no_int_out)),
 tbl_vol_comp_out <- kable(tibble(Outliers = c('In', 'Out'),
                                  R_Squared = c(glance(full_vol_model_no_int)$r.squared, glance(full_vol_model_no_int_out)$r.squared)),
                           caption = 'R Squared change due to Outliers')
-
 ```
 
 The main effect model was recreated with the data with outliers removed. For convenience, the type II ANOVA tables for both models are produced below along with the change in R Squared.
@@ -1257,7 +1237,6 @@ volume_dataset <- volume_dataset %>%
 vol_hemi_model <- lm(volume_dataset, formula = Pic ~ Age + Music + R_PHC_normed + L_PHC_normed + Sec_Lang + Education)
 
 tbl_vol_hemi <- kable(tidy(Anova(vol_hemi_model)))
-
 ```
 
 The effect of the different hemispheres of the brain was also investigated. A model of main effects was created where, instead of normalized total PHC volume, the normalized individual hemisphere PHC volumes were used. The below table presents the type III ANOVA table for the model.
@@ -1273,7 +1252,6 @@ Interestingly, the PHC volumes are not significant when split apart. However, th
 
 ### Attention Keeping and Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
 ```{r Cook's plots, remove one point at a time}
-
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
   select(Flanker_test, Age, Track_Activity, Second_Language)
@@ -1353,8 +1331,6 @@ avg_hatFlanker3 = (1+3)/row_num_removed3
   xlim(0, 0.3) +
   theme_bw()+
   Project3_theme()
-
-
 ```
 
 ### Memory Recall and Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
@@ -1456,8 +1432,6 @@ We removed the three outliers previously identified, e.g. (.rownames, Parahippo_
 
 ### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
 ```{r Cooks plots remove one at a time}
-
-
 oneattime <- Moca_unplanned_aug %>%
   filter(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca)
 
@@ -1487,7 +1461,6 @@ kable(AIC(Moca_first,Moca_second,Moca_third))
 Moca_firstaug <- augment(Moca_first)
 Moca_secondaug <- augment(Moca_second)
 Moca_thirdaug <- augment(Moca_third)
-
 ```
 
 ```{r New cooks plots for supplement}
@@ -1533,8 +1506,6 @@ Moca_thirdaug %>%
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1), paste0("(", Flanker_test, ", ", '',")"),'')),  nudge_y = 0.2, size=3)+
   theme_bw()+
   Project3_theme()
-
-
 ```
 
 ### Parahippocampal Volume and Memory
