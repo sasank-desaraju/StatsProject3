@@ -498,27 +498,20 @@ kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3)
 
 ```{r}
 # Model diagnostics plotting
-hypo2_model_aug <- augment(hypo2_model)
+# Here we use our new model (hypo2_model_dropped3) with 3 terms that resulted from our drop1 changes, as the AIC comparisons as part of that function indicate it is a 'better' model that our original model (hypo2_model) with 6 terms
+hypo2_model_aug <- augment(hypo2_model_dropped3)
 
 # Hypothesis Two Residuals vs. Fitted Values plot
-ggplot(hypo2_model_aug, aes(.fitted, .resid)) +
+ggplot(hypo2_model_aug, aes(.fitted, .std.resid)) +
   geom_point() +  
   geom_smooth(method=lm, formula = `y` ~ `x`) +
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
   labs(
 title = "Residuals vs. Fitted Values for Hypothesis Two")+
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
+  Project3_theme()
 ```
-\emph{Figure(Residuals vs. Fitted Values Hypothesis 2): Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. One residual in particular stands out somewhat in the upper right corner of the plot, potentially representing an outlier.}
+\emph{Figure(Residuals vs. Fitted Values Hypothesis 2): Inspecting the plot, the residuals appear to be randomly distributed around the 0 line, indicating it is reasonable to assume a linear relationship. They form a rough band around the 0 line, indicating the error term variances are approximately equal. Two residuals in particular stand out somewhat in the upper right corner of the plot, potentially representing outliers, with a third also outside the boundary of our h-line.}
 
 ```{r}
 #Hypothesis Two QQ plot
@@ -532,24 +525,15 @@ Residual Values for Hypothesis 2") +
   ylab("Sample") +
   xlab("Theoretical") +
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
+  Project3_theme()
 ```
 \emph{Figure(QQ Plot Hypothesis 2): Observing the QQ plot shows that the model most closely follows a chi squared distribution with both the left hand and right hand tails tilting up.}
 
 ```{r}
 #Hypothesis Two Cooks Distance plot
-hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
+hypo2_model_ave_hat = (3+1)/nrow(drop_na(hypo2_model_aug))
 #hat_ave = (k+1)/n
-    #k = number of regressors, = 6 here
+    #k = number of regressors, = 3 here
     #n = number of samples
   ggplot(drop_na(hypo2_model_aug), aes( y = .std.resid,
                x = .hat, size = .cooksd )) +
@@ -563,25 +547,14 @@ hypo2_model_ave_hat = (6+1)/nrow(drop_na(hypo2_model_aug))
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*hypo2_model_ave_hat,
                               # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers
-                              str_c("(", `Pic_Seq_Mem_Test`, ", ", round(Parahippo_vol,digits = 3),")"), "")),
-            nudge_y = 0.2, size=3) +
+                              paste0("(", .rownames, ", ", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3) +
+  geom_text(aes(label=if_else(.cooksd>=0.1, paste0("(", .rownames, ", ", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3, color="purple") +
   ggtitle("Cooks Distance for Hypothesis 2 Model")+
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-  
-  #paste0("(",  ", ", round(BOLD, digits = 2),")"),'0')),  nudge_y = 0.2, size=4)+
+  Project3_theme()
 ```
 \emph{Cooks Distance Plot:} 
-* Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+* Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see one point that passes that threshold. To identify the points, they were marked by their .rownames identifier created via augment() and their rounded .cooksd value  in black text. Visually inspecting the graph, while numerous points have high leverage, there are few points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. Two data points are particularly notable for their comparatively large Cook's Distance, seen in the upper portion of the plot. These points were manually marked by their .rownames identifier created via augment() and their rounded .cooksd value also, though in purple text to distinguish them. For these reasons, the three total points mentioned were labelled as outliers and removed. Additional graphing is available in the Supplemental section for Hypothesis Two at the end of this document.
 
 ### Post-hoc Analysis
 
@@ -711,18 +684,7 @@ ggplot(drop_na(Moca_unplanned,Age,Moca_Score), aes(Age,Moca_Score))+
   ylab("MoCA Score") +
   ggtitle("MoCA Scores vs Age")+
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-
-
+  Project3_theme()
 ```
 \emph{Figure (Moca vs. Age): The linear fit shows a slightly downward trend with Moca scores decreasing with age. This will be tested in the model.}
 ```{r fig2}
@@ -733,16 +695,7 @@ ggplot(drop_na(Moca_unplanned,Flanker_test, Moca_Score), aes(Flanker_test,Moca_S
   ylab("MoCA Score") +
   ggtitle("Flanker's Test vs MoCA Scores")+
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
+  Project3_theme()
 ```
 \emph{Figure (Moca vs. Flanker's Test Scores): The linear fit shows an upward trend with Moca scores increasing with Flanker's test. This will be tested in the model.}
 ```{r fig3}
@@ -753,17 +706,7 @@ ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Tes
   ylab("MoCA Score") +
   ggtitle("Picture Memory Test vs MoCA Scores")+
   theme_bw()+
-  theme(axis.line = element_line(size=0.7, colour="#0006FD"),
-        axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
-        axis.title.x= element_text(colour="#0029AE",size=14),
-        axis.title.y= element_text(colour="#0029AE",size=14),
-        axis.text.x = element_text(colour="#3F918B",size=12),
-        axis.text.y = element_text(colour="#3F918B",size=12),
-        strip.text.x = element_text(colour = "white", face = "bold"),
-        strip.text.y = element_text(colour = "white", face = "bold"),
-        strip.background = element_rect(colour = "#0029AE", fill = "#0029AE"),
-        plot.title = element_text(hjust = 0.5))
-
+  Project3_theme()
 ```
 \emph{Figure (Moca vs. Picture Sequence Memory Test Scores): The linear fit shows an upward trend with Moca scores increasing with Picture sequence memory test scores. This will be tested in the model.}
 
@@ -1322,7 +1265,7 @@ Interestingly, the PHC volumes are not significant when split apart. However, th
 # Supplementary Tables and Figures
 
 ## Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
-```{r Cooks plots remove one at a time}
+```{r Cook's plots, remove one point at a time}
 
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
@@ -1354,7 +1297,7 @@ Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
 ```
 
-```{r New cooks plots for supplement}
+```{r New Cook's plots for supplement}
 #Remove First Point
 row_num_removed1 <- nrow(drop_na(Flanker_firstaug))
 avg_hatFlanker1 = (1+3)/row_num_removed1
@@ -1407,7 +1350,100 @@ avg_hatFlanker3 = (1+3)/row_num_removed3
 
 ```
 
+## Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
+```{r Cook's plots, remove one point at a time}
+# Remove identified outlier #1
+hypo2_firstoutlier <- hypo2_model_aug %>%
+  filter(.rownames != 30) %>%
+  select(Pic_Seq_Mem_Test, Age, Second_Language, Parahippo_vol)
+# New linear model with first outlier (30, 0.210) removed
+hypo2_firstoutlier_lm <- lm(data = hypo2_firstoutlier, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
 
+# Remove identified outlier #2
+hypo2_secondoutlier <- hypo2_model_aug %>%
+  filter(.rownames != 21) %>%
+  select(Pic_Seq_Mem_Test, Age, Second_Language, Parahippo_vol)
+# New linear model with second outlier (21, 0.171) removed
+hypo2_secondoutlier_lm <- lm(data = hypo2_secondoutlier, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
+
+# Remove identified outlier #3
+hypo2_thirdoutlier <- hypo2_model_aug %>%
+  filter(.rownames != 119) %>%
+  select(Pic_Seq_Mem_Test, Age, Second_Language, Parahippo_vol)
+# New linear model with third outlier (119, 0.069) removed
+hypo2_thirdoutlier_lm <- lm(data = hypo2_thirdoutlier, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
+
+# Remove all three identified outliers
+hypo2_all3outliers <- hypo2_model_aug %>%
+  filter(.rownames != 30 & .rownames != 21 & .rownames != 119) %>%
+  select(Pic_Seq_Mem_Test, Age, Second_Language, Parahippo_vol)
+# New linear model with all 3 outliers (30, 0.210), (21, 0.171), (119, 0.069) removed
+hypo2_all3outliers_lm <- lm(data = hypo2_all3outliers, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
+```
+
+```{r New Cooks plots for supplement}
+hypo2_firstoutlier_aug <- augment(hypo2_firstoutlier_lm)
+hypo2_secondoutlier_aug <- augment(hypo2_secondoutlier_lm)
+hypo2_thirdoutlier_aug <- augment(hypo2_thirdoutlier_lm)
+hypo2_all3outliers_aug <- augment(hypo2_all3outliers_lm)
+
+# Remove first outlier only
+avg_hat_Hypo2_outlier1 = (3+1)/nrow(hypo2_firstoutlier_aug)
+hypo2_firstoutlier_aug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hat_Hypo2_outlier1, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hat_Hypo2_outlier1, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier1, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier1), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
+  labs(title = "Cook's Distance, First Outlier Only Removed")+
+  theme_bw()+
+  Project3_theme()
+
+# Remove second outlier only
+avg_hat_Hypo2_outlier2 = (3+1)/nrow(hypo2_secondoutlier_aug)
+hypo2_secondoutlier_aug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hat_Hypo2_outlier2, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hat_Hypo2_outlier2, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier2, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier2), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
+  labs(title = "Cook's Distance, Second Outlier Only Removed")+
+  theme_bw()+
+  Project3_theme()
+
+# Remove third outlier only
+avg_hat_Hypo2_outlier3 = (3+1)/nrow(hypo2_thirdoutlier_aug)
+hypo2_thirdoutlier_aug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hat_Hypo2_outlier3, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hat_Hypo2_outlier3, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier3, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier3), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
+  labs(title = "Cook's Distance, Third Outlier Only Removed")+
+  theme_bw()+
+  Project3_theme()
+
+# Remove all three outliers
+avg_hat_Hypo2_all3outliers = (3+1)/nrow(hypo2_all3outliers_aug)
+hypo2_all3outliers_aug %>%
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = avg_hat_Hypo2_all3outliers, linetype = 2)+
+  geom_vline(xintercept = 2 * avg_hat_Hypo2_all3outliers, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * avg_hat_Hypo2_all3outliers, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_all3outliers), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
+  labs(title = "Cook's Distance, All Three Outliers Removed")+
+  theme_bw()+
+  Project3_theme()
+```
+We removed the three outliers previously identified, e.g. (.rownames, Parahippo_vol) = (30, 0.210), (21, 0.171), (119, 0.069), and compared the resulting Cooks Distance plots. Removing each one individually did not meaningfully change the influence of the others, as seen by the first three Cook's Distance plots. The final Cook's Distance plot demonstrates the result when all three outliers are removed. Based on our previously assumed criteria for Cook's Distance and .hat value, several new potential outliers emerge (i.e. those points labeled). Given the patchiness of the data, we wanted to be judicious in removal of potential outliers so as to not exacerbate that weakness in the data but removing an excessive number of points. 
 
 ### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
 ```{r Cooks plots remove one at a time}
