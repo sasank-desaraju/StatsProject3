@@ -1255,7 +1255,7 @@ Interestingly, the PHC volumes are not significant when split apart. However, th
 ## Planned Hypotheses
 
 ### Attention Keeping and Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
-```{r Cook's plots, remove one point at a time}
+```{r Cook plots, remove one point at a time 1}
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
   select(Flanker_test, Age, Track_Activity, Second_Language)
@@ -1286,7 +1286,7 @@ Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
 ```
 
-```{r New Cook's plots for supplement}
+```{r New Cook plots for supplement}
 #Remove First Point
 row_num_removed1 <- nrow(drop_na(Flanker_firstaug))
 avg_hatFlanker1 = (1+3)/row_num_removed1
@@ -1338,7 +1338,7 @@ avg_hatFlanker3 = (1+3)/row_num_removed3
 ```
 
 ### Memory Recall and Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
-```{r Cook's plots, remove one point at a time}
+```{r Cook plots, remove one point at a time 2}
 # Remove identified outlier #1
 hypo2_firstoutlier <- hypo2_model_aug %>%
   filter(.rownames != 30) %>%
@@ -1384,7 +1384,7 @@ hypo2_firstoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier1, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier1), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, First Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, First Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1398,7 +1398,7 @@ hypo2_secondoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier2, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier2), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, Second Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, Second Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1412,7 +1412,7 @@ hypo2_thirdoutlier_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_outlier3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_outlier3), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, Third Outlier Only Removed")+
+  labs(title = "Cook\'s Distance, Third Outlier Only Removed")+
   theme_bw()+
   Project3_theme()
 
@@ -1426,7 +1426,7 @@ hypo2_all3outliers_aug %>%
   geom_vline(xintercept = 3 * avg_hat_Hypo2_all3outliers, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
   geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hat_Hypo2_all3outliers), paste0("(", round(.cooksd, digits=3),")"),'')), nudge_y = 0.2, size=3)+
-  labs(title = "Cook's Distance, All Three Outliers Removed")+
+  labs(title = "Cook\'s Distance, All Three Outliers Removed")+
   theme_bw()+
   Project3_theme()
 ```
