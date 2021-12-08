@@ -815,10 +815,24 @@ This model includes interactions with age to see if it also factors into predict
 ```{r Compare Mod,echo=FALSE}
 
 kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
+
+#We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
+invisible(drop1(Moca_unplanned_ageintmod))
+
+#Dropping Musical_Practice gives best improvement to AIC, therefore dropped
+
+Moca_unplanned_ageintmod_dropped1 <- lm(Moca_unplanned,
+                                        formula = Moca_Score ~ Age + Flanker_test + 
+                                          Pic_Seq_Mem_Test + Age:Flanker_test)
+
+kable(drop1(Moca_unplanned_ageintmod_dropped1))
+
+
+kable(AIC(Moca_unplanned_ageintmod_dropped1,Moca_unplanned_mod))
 ```
 
 ### \emph{Moca Model Comparisons:}
-All of the models have similar AIC values, however, the one with the lowest AIC is the model that excluded age. This model will be used to base the conclusions on. Given that, we will use that model moving forward to inspect for normally distributed residuals and check for outliers.
+All of the models have similar AIC values, however, the one with the lowest AIC is the model that excluded age.Then, the drop one method was used to drop terms until Age, Flanker's Test, Picture Test, and Age:Flanker's Test were the last terms left to include. However,upon inspection, the simple model only including Flanker's and the Picture Test still had a better/lower AIC. This model will be used to base the conclusions on. Given that, we will use that model moving forward to inspect for normally distributed residuals and check for outliers.
 
 ```{r}
 Moca_unplanned_aug <- augment(Moca_unplanned_mod)
@@ -867,8 +881,6 @@ Moca_newremove_mod <- lm(newMoca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 kable(Anova(Moca_newremove_mod))
 kable(tidy(Moca_newremove_mod))
-
-
 
 ```
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
