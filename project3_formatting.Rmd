@@ -19,7 +19,7 @@ library(emmeans)
 
 Cognitive impairment and/or cognitive decline effects approximately 10-20% of older adults in the United States (2019). For example, dementia and Alzheimer's disease can be catastrophic to a person's quality and values of life, leaving a family disheartened and heart broken. Therefore, it is vital to develop a deep understanding on the main causes and drivers behind the development of cognitive impairment and decline. Today, there are a variety of tests that can be drawn from to categorize and quantify the degree in which cognitive impairment/decline affects adults. In the statistical analysis and exploration below, the Flanker test, NIH Picture Sequence Memory test, and MoCA cognitive assessment will be examined under the effects from various behavioral and anatomical factors in an effort to better correlate solutions to improving and/or slowing down the development of cognitive impairments and decline.
 
-#A Priori: 
+
 
 ```{r data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
@@ -84,11 +84,9 @@ Project3_theme <- function() {
 
 # Planned hypotheses
 
-## Phuc stuff
+## Attention Keeping
 
-# Scientific Hypotheses (Planned Analysis):
-
-## Hypothesis 1:
+### Hypothesis 1:
 The ability to keep track of current tasks, proxied by Flanker’s test of attention, can be explained by behavioral habits and a self-reported score when accounting for age and education level. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The self-reported score asks the subject about their ability to keep track of current tasks in a distracting environment. 
 
 * Variables from the dataset were renamed to improve clarity (Ex. tb_flanker_unadj_ss -> Flanker_test)
@@ -109,13 +107,16 @@ hypo_one_dataset <- tidy_dataset %>%
   )
   
 ```
-### Statistical Hypothesis:
+
+### A Priori:
+
+#### Statistical Hypothesis:
 
 Ho: Flanker’s test scores will not be significantly different for different behavioral habits, accounting for age and education. 
 
 Ha: Flanker’s test scores will be significantly different for different behavioral 	habits, accounting for age and education. 
 
-### Statistical Model:
+#### Statistical Model:
 $$\begin{aligned}
 \hat{y}_{Flanker.Test} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
 \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{Track}X_{Track}?
@@ -200,7 +201,7 @@ testerdata <- hypo_one_dataset %>%
 ```
 \emph{Figure (Keep Track of Current Tasks vs. Flanker's Test): The boxplot can be visually observed to suggest that there is not a significant effect between the ability to keep track of current tasks and the unadjusted Flanker's test scores of participants. Specifically, the mean of each boxplot do not follow a trend with increasing degree in ability to keep track of current tasks.} 
 
-## Model Interpretation and Analysis:
+### Model Interpretation and Analysis:
 
 \textbf{Model 1 (Full Model): Anova (type 2) test}
 * The terms of: Track Activity (1st, 2nd, 3rd, and 5th degree), Second Language, Education Level, and Musical Practice are insignificant (p-value >> alpha = 0.05).
@@ -308,6 +309,8 @@ kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
 \emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
 
+### Post-hoc Analysis
+
 ```{r hypo1-post-hoc}
 Second_Language_emm <- emmeans(new_hypo1_model, 
                  specs =  ~Second_Language)
@@ -323,9 +326,9 @@ kable(arrange(as_tibble(contrast(Track_Activity_emm, method = "pairwise", adjust
 The above tables show post-hoc analyses of second language and activity in the model in the most recent ANOVA table. The interaction due to second language presence is not significant. Furthermore, none of the activity groups are significant from each other although the difference between the "zero hours" group and the "four hours" group is almost significant.
 
 
-## Chris stuff
+## Memory Recall
 
-## Hypothesis 2: 
+### Hypothesis 2: 
 The ability to recall from memory, proxied by the NIH Picture Sequence Memory Test, can be explained by the combined effect of relevant behavioral habits, fractional brain volume of a relevant section of the brain, and a self-reported score when accounting for age and education. These behavioral habits are ones that have been connected in literature to better brain performance: musical practice and fluency in multiple languages. The brain volume considered is the parahippocampal region, known in literature to be important for memory function. The self-reported score asks the subject about their ability to easily recall details in their day-to-day lives. 
 
 * Variables from the dataset have been renamed to improve clarity (e.g. tb_picseq_unadj_ss -> Pic_Seq_Mem_Test)
@@ -353,13 +356,16 @@ hypo_two_dataset <- tidy_dataset %>%
 # (Parahippo_vol = (fs_parahpc_vol_l + fs_parahpc_vol_r) / (fs_etiv)) 
 
 ```
-### Statistical Hypothesis:
+
+### A Priori:
+
+#### Statistical Hypothesis:
 
 Ho: The NIH Picture Sequence Memory test scores will not be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
 
 Ha: NIH Picture Sequence Memory test scores will be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
 
-### Statistical Model:
+#### Statistical Model:
 $$\begin{aligned}
 \hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}? +
 \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
@@ -567,12 +573,12 @@ kable(arrange(as_tibble(contrast(Second_Language_emm, method = "pairwise", adjus
 
 A post-hoc analysis on the effect of second language in the most parsimonious model yielded that the there was a significant difference in Picture Sequence Memory Test score between the groups that did and did not speak a second language.
 
-# Exploratory analysis
+# Exploratory analyses
 
-## Natalie stuff
-# Exploratory Analyses: 
-## Question 1
-In the planned analyses, we looked at how different tests and self reported scores affected metrics like memory or attention, or how those affect other factors. Now, it would be interesting to look at how cognitive scores, like Moca scores, are  potentially impacted by the previous factors of interest (memory and attention) along with different symptoms of Mild Cognitive Impairment, such as ability to concentrate and indecisiveness. Analysis will be done on various self reported scores to see if a relationship exists.
+## MoCA and Cognitive Impairment
+
+### Question 1
+Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, such as ability to pay attention, concentrate, remember things, and indecisiveness? Analysis will be done on various self reported scores to see if a relationship exists.
 
 \textbf{Self-reported Score Meanings:}
 
@@ -672,8 +678,7 @@ kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
 Due to all the missing values, only 27 observations ended up contributing to the model itself. The only category that had any statistical significance according to the Anova was paying attention, indicating that the one of the means for paying attention may be statistically different. When looking at the t-test, however, none of the coefficients are significant so this model cannot be used to make any real conclusions. It is important to note that the lack of objectiveness in self-reported scores would have led to questions about the validity of conclusions if there had not also been a lack of responses. This leads to expanding to further exploration using objective, numerical scores from Flanker's test (testing attention and concentration) and the Picture Sequence Memory Test (testing episodic memory) and their relationship to Moca Scores. This analysis will be shown later in the report.
 
 
-# Expanded Exploratory Analyses: 
-## Question 1 continued
+### Question 1 continued
 It would still be interesting to understand if different scores for memory, attention and concentration, which are impacted by Mild Cognitive Impairment (MCI), have an impact on Moca scores. This time, we will use Flanker's Test and the Picture Sequence Memory Test to see if these factors have an impact on Moca scores, which can implicate MCI if the score is below 25. However, Age can also be a confounding factor on memory and attention and potentially Moca scores as well, so it will be included in this model.
 
 ```{r exploratory-data-carpentry-expansion fig1,echo = FALSE}
@@ -845,18 +850,11 @@ kable(tidy(Moca_newremove_mod))
 ```
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
 
-
-
-
 ## Parahippocampal Volume and Memory
 
-*Planned exploratory analysis*
+### Introduction
 
-### A Priori
-
-TODO: Do A Priori
-
-We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level.
+We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level. In this analysis, musical practice was considered as a numerical variable with blank responses being interpreted as a lack of musical practice. This exploratory analysis relates to the second planned hypothesis, predicting the same variable with many of the same predictors.
 
 ### Data Visualization
 
@@ -874,14 +872,6 @@ volume_dataset <- exp_dataset %>%
          Tot_Vol = as.numeric(Tot_Vol),
          Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
   mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
-
-  # mutate(Education = fct_collapse(Education,
-  #     "High School" = c("2"),
-  #     "Associate's" = c("3"),
-  #     "Bachelor's" = c("4"),
-  #     "Master's" = c("5"),
-  #     "Doctorate or Professional" = c("6")),
-  #     .after = Education) %>%
 ```
 
     TODO: raw data plots, raw + summary
@@ -1074,10 +1064,6 @@ ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid, size=.cooksd))+
   theme_bw()+
   Project3_theme()
 
-# geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >=3 * avg_hatMoca, paste0("(", Flanker_test, ", ", Moca_Score,")"),'')), nudge_y = 0.2, size=3)
-
-# geom_text(aes(label=if_else(.std.resid >= 1 | .std.resid <= -1 | .hat >=3 * avg_hat, paste0("(", ", ", round(BOLD, digits = 2),")"),'0')), nudge_y = 0.2, size=4)
-
 # resid. vs fitted
 plt_vol_stdres_fitted <- ggplot(full_vol_model_no_int_aug, aes(.fitted, .std.resid)) +
   geom_point()+
@@ -1231,11 +1217,11 @@ tbl_vol_best_model
 
 ### Discussion
 
-A model predicting PSM Test score using a general linear model predicted by age, PHC volume, second language presence, and their second order interactions outcompeted other models using the AIC metric. In this model, PHC volume is not a significant main effect, casting doubt on theories of the importanec of the PHC in memory tasks. However, larger that captured more of the variation in the data attribute statistical significance to the effect of PHC volume. Nevertheless, age and second language presence are important covariance that will likely prove useful in similar future analyses.
+A model predicting PSM Test score using a general linear model predicted by age, PHC volume, second language presence, and their second order interactions outcompeted other models using the AIC metric. In this model, PHC volume is not a significant main effect, casting doubt on theories of the importance of the PHC in memory tasks. However, larger that captured more of the variation in the data attribute statistical significance to the effect of PHC volume. Nevertheless, age and second language presence are important covariance that will likely prove useful in similar future analyses.
 
-*Unplanned exploratory analysis*
+### Further Exploration
 
-### Accounting for effects
+#### Accounting for effects
 
 ```{r vol-unplanned-1}
 unplanned_data_1 <- augment(full_vol_model_no_int_out) %>%
@@ -1260,7 +1246,7 @@ plt_vol_comp_pic
 
 Not only was the distribution shifted up in value, but the shape became more unimodal.
 
-### Hemispheric Contributions of PHC Volume
+#### Hemispheric Contributions of PHC Volume
 
 ```{r vol-unplanned-2}
 volume_dataset <- volume_dataset %>%
@@ -1282,7 +1268,9 @@ tbl_vol_hemi
 Interestingly, the PHC volumes are not significant when split apart. However, there is a large discrepancy between the contributions of the right and left hemispheres. The left PHC volume captures 100 times as much of the variation in the data as the right hemisphere does. Although neither effect is significant, this interesting result can inform future study into lateral asymmetries in brain function.
 # Supplementary Tables and Figures
 
-## Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
+## Planned Hypotheses
+
+### Attention Keeping and Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
 ```{r Cook's plots, remove one point at a time}
 
 full_remove_data <- hypo1_model_3_aug %>%
@@ -1368,7 +1356,7 @@ avg_hatFlanker3 = (1+3)/row_num_removed3
 
 ```
 
-## Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
+### Memory Recall and Picture Sequence Memory Test Planned Analysis (Hypothesis 2): Cook's Distance by point removal and model comparison
 ```{r Cook's plots, remove one point at a time}
 # Remove identified outlier #1
 hypo2_firstoutlier <- hypo2_model_aug %>%
@@ -1463,6 +1451,8 @@ hypo2_all3outliers_aug %>%
 ```
 We removed the three outliers previously identified, e.g. (.rownames, Parahippo_vol) = (30, 0.210), (21, 0.171), (119, 0.069), and compared the resulting Cooks Distance plots. Removing each one individually did not meaningfully change the influence of the others, as seen by the first three Cook's Distance plots. The final Cook's Distance plot demonstrates the result when all three outliers are removed. Based on our previously assumed criteria for Cook's Distance and .hat value, several new potential outliers emerge (i.e. those points labeled). Given the patchiness of the data, we wanted to be judicious in removal of potential outliers so as to not exacerbate that weakness in the data but removing an excessive number of points. 
 
+## Exploratory Analyses
+
 ### Moca Unplanned Analysis: Cook's distance point by point removal and model comparison
 ```{r Cooks plots remove one at a time}
 
@@ -1546,9 +1536,9 @@ Moca_thirdaug %>%
 
 ```
 
-## Parahippocampal Volume and Memory
+### Parahippocampal Volume and Memory
 
-### Basic Visualization
+#### Basic Visualization
 
 ```{r}
 plt_vol_age
