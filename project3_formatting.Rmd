@@ -646,6 +646,12 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
 ### \emph{Question 1 Figure Observations:}
 In all 4 of these figures, it is evident there is not a lot of data available. Many of the self-reported scores were simply left blank. This is likely to  greatly impact the model created. General observations from the figures would indicate higher ability to concentrate and remember result in higher Moca Scores in the normal range above 25, with lower concentration and memory below 25 implying potential cognitive impairment. Still, a model needs to be created and tested to see if there is a relationship at all.
 
+### Statistical Model for Exploratory Moca Analysis:
+$$\begin{aligned}
+\hat{y}_{MoCA} = \beta_{PayAttention}X_{PayAttention}? + \beta_{Remebering}X_{Remembering}? +
+\beta_{Indecisiveness}X_{Indecisiveness}? + \beta_{Concentration}X_{Concentration}?
+\end{aligned}$$
+
 
 ```{r pressure, echo=FALSE}
 # If I drop NA's from every column, the result is only 27 observations which is concerning. It gets rid of indecisive scores of 2
@@ -713,6 +719,11 @@ ggplot(drop_na(Moca_unplanned,Pic_Seq_Mem_Test, Moca_Score), aes(Pic_Seq_Mem_Tes
 ### \emph{Expanded Analysis Question 1 Figure Observations:}
 In each figure, there seems to be general trends visible. Moca scores appear to decrease with age and increase with higher Flanker's and Picture Sequence Memory Tests. Referring to the figures in hypothesis 1 and 2, Flanker's Test and Picture Sequence Memory Test scores both decrease with increasing age, indicating that we should check for interactions in the model analyses or if it can be left out since every score decreases with age.
 
+### Statistical Model for Unplanned Moca Analysis-Age Excluded:
+$$\begin{aligned}
+\hat{y}_{MoCA} = \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}?
+\end{aligned}$$
+
 ```{r Moca Unplanned Models, echo = FALSE}
 #No age
 Moca_unplanned_mod <- lm(Moca_unplanned,
@@ -727,6 +738,10 @@ kable(glance(Moca_unplanned_mod))
 ### \emph{Model Excluding Age Interpretation:}
 This model shows Flanker's Test scores, which are proxy for attention, to insignificantly affect Moca Scores according to the Anova table. The Picture Sequence Memory Test, however, does show a significant impact in predicting Moca scores. Increased memory test scores correlate with increased moca scores, which makes sense as better memory and higher moca scores implies normal cognition as opposed to impaired cognition.
 
+### Statistical Model for Unplanned Moca Analysis-Age Included:
+$$\begin{aligned}
+\hat{y}_{MoCA} = \beta_{Age}X_{Age}? + \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}?
+\end{aligned}$$
 
 ```{r Age Mod, echo=FALSE}
 #Age Model, No interactions
@@ -740,7 +755,10 @@ kable(glance(Moca_unplanned_agemod))
 ### \emph{Model Including Age Interpretation:}
 This model includes age to see if it also factors into predicting moca scores. According to the Anova table, neither Age nor Flanker's test scores significantly affect or change with Moca scores. As with the previous model, it shows the Picture Sequence Memory test scores increase with Moca scores.
 
-
+### Statistical Model for Unplanned Moca Analysis-Age and Interactions Included:
+$$\begin{aligned}
+\hat{y}_{MoCA} = \beta_{Age}X_{Age}? &+ \beta_{FlankerTest}X_{FlankerTest}? + \beta_{Pic.Seq.Mem.Test}X_{Pic.Seq.Mem.Test}? \\&+\beta_{FlankerTest:Age}X_{FlankerTest:Age}?+ \beta_{Pic.Seq.Mem.Test:Age}X_{Pic.Seq.Mem.Test:Age}?
+\end{aligned}$$
 ```{r Age Interactions Mod,echo=FALSE}
 #Age Model, Interactions
 Moca_unplanned_ageintmod <- lm(Moca_unplanned,
