@@ -898,11 +898,11 @@ volume_dataset <- exp_dataset %>%
          L_PHC = L_Parahippo_vol,
          Tot_Vol = Est_Tot_intra_cranial_vol) %>%
   mutate(Education = fct_collapse(Education,
-      "High School" = c("2", "High School", "HS"),
-      "Associate's" = c("3", "Assoc."),
-      "Bachelor's" = c("4", "Bach","Bachelor's"),
-      "Master's" = c("5", "Masters", "Master's", "Master"),
-      "Doctorate or Professional" = c("6", "Doctor")), 
+      "High School" = c("2"),
+      "Associate's" = c("3"),
+      "Bachelor's" = c("4"),
+      "Master's" = c("5"),
+      "Doctorate or Professional" = c("6")), 
       .after = Education) %>%
   mutate(Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
   mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
