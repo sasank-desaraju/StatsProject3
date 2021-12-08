@@ -1225,26 +1225,47 @@ A model predicting PSM Test score using a general linear model predicted by age,
 
 ### Accounting for effects
 
-Further
+```{r vol-unplanned-1}
+unplanned_data_1 <- augment(full_vol_model_no_int_out) %>%
+  mutate(Pic_adj = Pic - full_vol_model_no_int_out$coefficients[['Age']] * Age)
+
+compare_pic_data <- unplanned_data_1 %>% pivot_longer(cols = c(Pic, Pic_adj))
+
+plt_vol_comp_pic <- ggplot(foo, aes(value, color = name)) +
+  geom_density() +
+  labs(
+    title = 'Adjusting for age'
+  )
+```
+
+Further exploration was conducted into the relationship between PSM Test scores and PHC volume. The effect of age was removed from the PSM Test scores and this adjusted metric was analyzed. The below plot shows the spread of PSM Test scores before and after adjusting for age.
+
+```{r}
+plt_vol_comp_pic
+```
+
+Not only was the distribution shifted up in value, but the shape became more unimodal.
 
 ### Hemispheric Contributions of PHC Volume
 
-# Supplemental Tables and Figures
+```{r vol-unplanned-2}
+volume_dataset <- volume_dataset %>%
+  mutate(R_PHC_normed = R_PHC / Tot_Vol,
+         L_PHC_normed = L_PHC / Tot_Vol)
 
-## Parahippocampal Volume and Memory
+vol_hemi_model <- lm(volume_dataset, formula = Pic ~ Age + Music + R_PHC_normed + L_PHC_normed + Sec_Lang + Education)
 
-### Basic Visualization
+tbl_vol_hemi <- kable(tidy(Anova(vol_hemi_model)))
 
-```{r}
-plt_vol_age
-plt_vol_music
-plt_vol_phc
-plt_vol_sec_lang
-plt_vol_education
-plt_vol_age_edu
 ```
 
+The effect of the different hemispheres of the brain was also investigated. A model of main effects was created where, instead of normalized total PHC volume, the normalized individual hemisphere PHC volumes were used. The below table presents the type III ANOVA table for the model.
 
+```{r}
+tbl_vol_hemi
+```
+
+Interestingly, the PHC volumes are not significant when split apart. However, there is a large discrepancy between the contributions of the right and left hemispheres. The left PHC volume captures 100 times as much of the variation in the data as the right hemisphere does. Although neither effect is significant, this interesting result can inform future study into lateral asymmetries in brain function.
 # Supplementary Tables and Figures
 
 ## Flanker's Test Planned Analysis (Hypothesis 1): Cook's distance by point removal and model comparison
