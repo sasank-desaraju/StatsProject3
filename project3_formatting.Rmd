@@ -20,7 +20,6 @@ library(emmeans)
 Cognitive impairment and/or cognitive decline effects approximately 10-20% of older adults in the United States (2019). For example, dementia and Alzheimer's disease can be catastrophic to a person's quality and values of life, leaving a family disheartened and heart broken. Therefore, it is vital to develop a deep understanding on the main causes and drivers behind the development of cognitive impairment and decline. Today, there are a variety of tests that can be drawn from to categorize and quantify the degree in which cognitive impairment/decline affects adults. In the statistical analysis and exploration below, the Flanker test, NIH Picture Sequence Memory test, and MoCA cognitive assessment will be examined under the effects from various behavioral and anatomical factors in an effort to better correlate solutions to improving and/or slowing down the development of cognitive impairments and decline.
 
 
-
 ```{r data-carpentry}
 dataset <- readRDS("./data/group3_data.rds")
 
@@ -143,6 +142,7 @@ ggplot(drop_na(hypo_one_dataset,Musical_Practice,Flanker_test), aes(x = Musical_
                                     color = Musical_Practice)) +
   geom_boxplot(show.legend = FALSE) +
   geom_jitter(alpha = 0.6)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   xlab("Musical Practice (Total Hrs per Week)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Musical Practice vs. Flanker's Test") + 
@@ -189,6 +189,7 @@ ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Acti
                                                                   color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
   geom_jitter(height = 0, alpha = 0.6)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Keep Track of Current Tasks vs. Flanker's Test")+
