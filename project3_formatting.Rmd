@@ -237,33 +237,33 @@ hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age
 kable(tidy(hypo1_model_1), digits = 3)
 kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
-### Model 2 (Age & Education Removed): Anova (type 2) test
+\textbf{Model 2 (Age & Education Removed): Anova (type 2) test}
 * The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
 
-```{r}
-#Model Construction
-hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Second_Language + Musical_Practice)
-
-#Analysis and Comparison
-kable(tidy(hypo1_model_2), digits = 3)
-kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
-```
 ### Model 3 (Age & Education Removed): \emph{Anova (type 2) test}
 * The terms of: Track Activity, Second Language, and Musical Practice are insignificant (p-value >> alpha = 0.05).
 * No significant terms are contained in the model.
 * A large degree of the model's variance is attributed to the track activity variable.
 
-* The full model (model 1) has the lowest AIC score; therefore it is conclusive to state it as the best model thus far. 
-```{r}
-#Model Construction
-hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Age + Education_Level)
 
-#Analysis and Comparison
+```{r}
+#We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
+invisible(drop1(hypo1_model_1))
+#Dropping Musical_Practice gives best improvement to AIC, therefore dropped
+hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
+
+invisible(drop1(hypo1_model_3))
+#Dropping Education Level gives best improvement to AIC, therefore dropped
+hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
+
+invisible(drop1(hypo1_model_3))
+#Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
+
+#Anova of new model
 kable(tidy(hypo1_model_3), digits = 3)
 kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
-kable(AIC(hypo1_model_1, hypo1_model_3))
 ```
 
 
@@ -295,7 +295,7 @@ xlab("Theoretical") +
 theme_bw()+
 Project3_theme()
 
-hat_avg_model_3 = (2+1)/nrow(hypo1_model_3_aug) 
+hat_avg_model_3 = (3+1)/nrow(hypo1_model_3_aug) 
 ```
 \textbf{QQ Plot:}
 * Observing the QQ plot shows that the model most closely follows a Chi-squared distribution with the left and right hand tails tilting upwards. However, there is variation as the points at the tails are scewing away from the linear line.
@@ -309,7 +309,7 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", .rownames, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
@@ -317,15 +317,15 @@ hypo1_model_3_aug %>%
 ```
 \textbf{Cooks Distance Plot: }
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see that four points pass the threshold. As such, we identified these points as outliers and removed them from the model.
-* The following points are then removed (Education_Level, Flankers_test): (3, 126.63), (3, 126.01), (3, 91.46), and (3, 81)
+* The following points are then removed (.rownames, .cooksd): (63, 0.098), (3, 126.01), (66, 0.075), and (199, 0.046)
 * In the supplements, you can see four cook's plots that show each point above dropped one at a time. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
 
 ```{r Cooks Flankers Removal}
 new_hypo1_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
-  select(Flanker_test, Age, Education_Level)
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-new_hypo1_model <- lm(new_hypo1_data, formula = Flanker_test ~ Age + Education_Level)
+new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
 kable(tidy(new_hypo1_model))
 kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
@@ -1229,38 +1229,32 @@ plt_vol_age_edu
 
 full_remove_data <- hypo1_model_3_aug %>%
   filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
-  select(Flanker_test, Age, Education_Level)
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
 remove_first <- hypo1_model_3_aug %>%
-  filter(.rownames != 134) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 63) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_one <- lm(data = remove_first, Flanker_test ~ Age + Education_Level)
+removed_model_one <- lm(data = remove_first, Flanker_test ~ Age + Track_Activity + Second_Language)
 
 remove_second <- hypo1_model_3_aug %>%
-  filter(.rownames != 199) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 66) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_two <- lm(data = remove_second, Flanker_test ~ Age + Education_Level)
+removed_model_two <- lm(data = remove_second, Flanker_test ~ Age + Track_Activity + Second_Language)
 
 remove_third <- hypo1_model_3_aug %>% 
-  filter(.rownames != 229) %>%
-  select(Flanker_test, Age, Education_Level)
+  filter(.rownames != 199) %>%
+  select(Flanker_test, Age, Track_Activity, Second_Language)
 
-removed_model_three <- lm(data = remove_third, Flanker_test ~ Age + Education_Level)
+removed_model_three <- lm(data = remove_third, Flanker_test ~ Age + Track_Activity + Second_Language)
 
-remove_four <- hypo1_model_3_aug %>% 
-  filter(.rownames != 252) %>%
-  select(Flanker_test, Age, Education_Level)
 
-removed_model_four <- lm(data = remove_four, Flanker_test ~ Age + Education_Level)
-
-kable(AIC(removed_model_one,removed_model_two, removed_model_three, removed_model_four))
+kable(AIC(removed_model_one,removed_model_two, removed_model_three))
 
 Flanker_firstaug <- augment(removed_model_one)
 Flanker_secondaug <- augment(removed_model_two)
 Flanker_thirdaug <- augment(removed_model_three)
-Flanker_fourthaug <- augment(removed_model_four)
 ```
 
 ```{r New cooks plots for supplement}
@@ -1312,21 +1306,6 @@ Flanker_thirdaug %>%
   theme_bw()+
   Project3_theme()
 
-#Remove Fourth Point
-row_num_removed4 <- nrow(Flanker_fourthaug)
-avg_hatFlanker4 = (1+2)/row_num_removed4
-
-Flanker_fourthaug %>%
-  ggplot( aes(.hat, .std.resid, size=.cooksd))+
-  geom_point(shape = 1)+
-  geom_vline(xintercept = avg_hatFlanker4, linetype = 2)+
-  geom_vline(xintercept = 2 * avg_hatFlanker4, linetype = 2, color="orange")+
-  geom_vline(xintercept = 3 * avg_hatFlanker4, linetype = 2, color="red")+
-  geom_hline(yintercept = c(-2, 2), linetype = 2)+
-  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca1),  paste0("(", Flanker_test, ", ",")"),'')),  nudge_y = 0.2, size=3)+
-  labs(title = "Cooks Distance for Row Name 252")+
-  theme_bw()+
-  Project3_theme()
 ```
 
 
