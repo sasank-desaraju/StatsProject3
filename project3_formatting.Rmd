@@ -601,6 +601,7 @@ exp_dataset <- tidy_dataset
 
 ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,Moca_Score,color = Paying_Attention))+
   geom_boxplot()+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Ability to Pay Attention") +
   ylab("MoCA Score") + 
@@ -613,6 +614,7 @@ ggplot(drop_na(exp_dataset,Paying_Attention, Moca_Score), aes(Paying_Attention,M
 ```{r Moca Remember}
 ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,color = Remembering))+
   geom_boxplot()+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Ability to Remember") +
   ylab("MoCA Score") + 
@@ -626,6 +628,7 @@ ggplot(drop_na(exp_dataset,Remembering, Moca_Score), aes(Remembering,Moca_Score,
 ggplot(drop_na(exp_dataset,Indecisiveness, Moca_Score), aes(Indecisiveness,Moca_Score,color = Indecisiveness))+
   #scale_color_manual(values = Colorcols2)+
   geom_boxplot()+
+  stat_summary(fun.data = mean_se, color = "black") +
   geom_jitter(alpha=0.5, height = 0)+
   xlab("Indecisiveness") +
   ylab("MoCA Score") +
@@ -640,6 +643,7 @@ ggplot(drop_na(exp_dataset,Concentration, Moca_Score), aes(Concentration,Moca_Sc
   #scale_color_manual(values = Colorcols)+
   geom_boxplot()+
   geom_jitter(alpha=0.5, height = 0)+
+  stat_summary(fun.data = mean_se, color = "black") +
   xlab("Concentration Difficulty") +
   ylab("MoCA Score") +
   ggtitle("MoCA Scores vs Concentration")+
