@@ -572,7 +572,7 @@ A post-hoc analysis on the effect of second language in the most parsimonious mo
 ## Natalie stuff
 # Exploratory Analyses: 
 ## Question 1
-Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, such as ability to pay attention, concentrate, remember things, and indecisiveness? Analysis will be done on various self reported scores to see if a relationship exists.
+In the planned analyses, we looked at how different tests and self reported scores affected metrics like memory or attention, or how those affect other factors. Now, it would be interesting to look at how cognitive scores, like Moca scores, are  potentially impacted by the previous factors of interest (memory and attention) along with different symptoms of Mild Cognitive Impairment, such as ability to concentrate and indecisiveness. Analysis will be done on various self reported scores to see if a relationship exists.
 
 \textbf{Self-reported Score Meanings:}
 
