@@ -870,11 +870,12 @@ plt_vol_age <- ggplot(drop_na(volume_dataset,Age,Pic), aes(Age, Pic)) +
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'Age',
+    title = 'Age vs Picture Sequence Memory Score',
     y = 'Picture Sequence Memory Test'
   )+
   theme_bw()+
   Project3_theme()
+
 
 # Music
 plt_vol_music <- ggplot(drop_na(volume_dataset,Music,Pic), aes(Music, Pic)) +
@@ -893,23 +894,27 @@ plt_vol_phc <- ggplot(drop_na(volume_dataset,Tot_PHC_normed,Pic), aes(Tot_PHC_no
   geom_jitter() +
   geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
   labs(
-    title = 'PSM vs PHC Volume',
-    y = 'Picture Sequence Memory Test'
+    title = 'Picture Sequence Memory Score vs Parahippocampal Volume',
+    y = 'Picture Sequence Memory Test',
+    x = 'Parahippocampal Volume'
   )+
   theme_bw()+
   Project3_theme()
 
 
 # Second Language
-plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, Pic)) +
-  geom_boxplot() +
-  geom_jitter(height = 0) +
+plt_vol_sec_lang <- ggplot(drop_na(volume_dataset,Sec_Lang,Pic), aes(Sec_Lang, Pic, color=Sec_Lang)) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE) +
+  stat_summary(fun.data = mean_se, color = "black") +
   labs(
-    title = 'PSM vs Second Lanuage Presence',
-    y = 'Picture Sequence Memory Test'
+    title = 'Picture Sequence Memory Score vs Second Language',
+    y = 'Picture Sequence Memory Test',
+    x = 'Second Language'
   )+
   theme_bw()+
   Project3_theme()
+
 
 # Education
 plt_vol_education <- ggplot(drop_na(volume_dataset,Education,Pic), aes(Education, Pic)) +
