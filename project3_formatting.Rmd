@@ -216,7 +216,7 @@ testerdata <- hypo_one_dataset %>%
 
 * A large degree of the model's variance is attributed to the age variable.
 
-* Only the participants' age can be conclusively determined to have a significant effect on the participants' unadjusted Flanker's test scores. 
+* Only the participants' age can be conclusively determined to have a significant effect on the participants' unadjusted Flanker's test scores.
 
 ```{r}
 #Model Construction
@@ -1374,7 +1374,7 @@ Flanker_thirdaug <- augment(removed_model_three)
 ```
 
 
-```{r, New Cook's plots for supplement}
+```{r, New Cook\'s plots for supplement}
 #Remove First Point
 row_num_removed1 <- nrow(drop_na(Flanker_firstaug))
 avg_hatFlanker1 = (1+3)/row_num_removed1
