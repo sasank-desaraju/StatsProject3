@@ -689,9 +689,9 @@ MoCA_dropna <- exp_dataset %>%
 
 Mocamod <- lm(MoCA_dropna,
               formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
-kable(glance(Mocamod))
-kable(Anova(Mocamod))
-kable(tidy(Mocamod))
+
+kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
+kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
 
 ```
 ### \emph{Model 1 Interpretation:}
@@ -779,8 +779,8 @@ In each figure, there seems to be general trends visible. Moca scores appear to 
 #No age
 Moca_unplanned_mod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_mod))
-kable(tidy(Moca_unplanned_mod))
+kable(Anova(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
+kable(tidy(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
 kable(glance(Moca_unplanned_mod))
 
 
