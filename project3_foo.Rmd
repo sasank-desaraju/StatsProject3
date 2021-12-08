@@ -23,6 +23,8 @@ library(tidymodels)
 dataset <- readRDS("./data/group3_data.rds")
 
 tidy_dataset <- dataset %>%
+  filter(redcap_event_name == "event_1_arm_1") %>%      # TODO: filtered out other events on 12/8
+  select(-redcap_event_name) %>%
   rename(ID = record_id,
          Flanker_test = tb_flanker_unadj_ss,
          Pic_Seq_Mem_Test = tb_picseq_unadj_ss,
@@ -618,9 +620,10 @@ Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, suc
 * Indecisiveness: lower numbers indicate decisions have been as easy to make as normal and higher numbers indicate high indecisiveness. It scales from 0-3.
 
 ```{r exploratory-data-carpentry,echo = FALSE}
-exp_dataset <- tidy_dataset %>%
-  filter(redcap_event_name == "event_1_arm_1") %>%
-  select(-redcap_event_name)
+exp_dataset <- tidy_dataset
+  # %>%
+  # filter(redcap_event_name == "event_1_arm_1") %>%
+  # select(-redcap_event_name)
 # Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
 #Model 2: understanding factors as related to cognitive impairment compared to moca scores
@@ -689,9 +692,9 @@ MoCA_dropna <- exp_dataset %>%
 
 Mocamod <- lm(MoCA_dropna,
               formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
-
-kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
-kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
+kable(glance(Mocamod))
+kable(Anova(Mocamod))
+kable(tidy(Mocamod))
 
 ```
 ### \emph{Model 1 Interpretation:}
@@ -779,8 +782,8 @@ In each figure, there seems to be general trends visible. Moca scores appear to 
 #No age
 Moca_unplanned_mod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
-kable(tidy(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
+kable(Anova(Moca_unplanned_mod))
+kable(tidy(Moca_unplanned_mod))
 kable(glance(Moca_unplanned_mod))
 
 
