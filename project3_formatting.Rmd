@@ -12,7 +12,7 @@ library(car)
 library(knitr)
 library(emmeans)
 library(tidymodels)
-
+library(emmeans)
 ```
 
 #Introduction: 
@@ -298,6 +298,19 @@ kable(tidy(new_hypo1_model))
 kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
 \emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
+
+```{r hypo1-post-hoc}
+Second_Language_emm <- emmeans(new_hypo1_model, 
+                 specs =  ~Second_Language)
+kable(arrange(as_tibble(contrast(Second_Language_emm, method = "pairwise", adjust = "fdr")), p.value),
+      caption = 'Post-Hoc Analysis of Second Language using FDR')
+
+Track_Activity_emm <- emmeans(new_hypo1_model, 
+                 specs =  ~Track_Activity)
+kable(arrange(as_tibble(contrast(Track_Activity_emm, method = "pairwise", adjust = "fdr")), p.value),
+      caption = 'Post-Hoc Analysis of Activity using FDR')
+```
+
 
 ## Chris stuff
 
