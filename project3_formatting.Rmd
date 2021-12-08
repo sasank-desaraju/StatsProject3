@@ -1343,11 +1343,10 @@ Flanker_thirdaug <- augment(removed_model_three)
 
 ```{r New cooks plots for supplement}
 #Remove First Point
-row_num_removed1 <- nrow(Flanker_firstaug)
+row_num_removed1 <- nrow(drop_na(Flanker_firstaug))
 avg_hatFlanker1 = (1+3)/row_num_removed1
 
-Flanker_firstaug %>%
-  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  ggplot(drop_na(Flanker_firstaug), aes(.hat, .std.resid, size=.cooksd))+
   geom_point(shape = 1)+
   geom_vline(xintercept = avg_hatFlanker1, linetype = 2)+
   geom_vline(xintercept = 2 * avg_hatFlanker1, linetype = 2, color="orange")+
@@ -1359,11 +1358,11 @@ Flanker_firstaug %>%
   Project3_theme()
 
 #Remove Second Point
-row_num_removed2 <- nrow(Flanker_secondaug)
+row_num_removed2 <- nrow(drop_na(Flanker_secondaug))
 avg_hatFlanker2 = (1+3)/row_num_removed2
 
-Flanker_secondaug %>%
-  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+
+  ggplot( drop_na(Flanker_secondaug),aes(.hat, .std.resid, size=.cooksd))+
   geom_point(shape = 1)+
   geom_vline(xintercept = avg_hatFlanker2, linetype = 2)+
   geom_vline(xintercept = 2 * avg_hatFlanker2, linetype = 2, color="orange")+
@@ -1375,11 +1374,11 @@ Flanker_secondaug %>%
   Project3_theme()
 
 #Remove Third Point
-row_num_removed3 <- nrow(Flanker_thirdaug)
+row_num_removed3 <- nrow(drop_na(Flanker_thirdaug))
 avg_hatFlanker3 = (1+3)/row_num_removed3
 
-Flanker_thirdaug %>%
-  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+
+  ggplot(drop_na(Flanker_thirdaug),aes(.hat, .std.resid, size=.cooksd))+
   geom_point(shape = 1)+
   geom_vline(xintercept = avg_hatFlanker3, linetype = 2)+
   geom_vline(xintercept = 2 * avg_hatFlanker3, linetype = 2, color="orange")+
