@@ -588,9 +588,10 @@ Are Moca scores impacted by different symptoms of Mild Cognitive Impairment, suc
 * Indecisiveness: lower numbers indicate decisions have been as easy to make as normal and higher numbers indicate high indecisiveness. It scales from 0-3.
 
 ```{r exploratory-data-carpentry,echo = FALSE}
-exp_dataset <- tidy_dataset %>%
-  filter(redcap_event_name == "event_1_arm_1") %>%
-  select(-redcap_event_name)
+exp_dataset <- tidy_dataset
+# %>%
+#   filter(redcap_event_name == "event_1_arm_1") %>%
+#   select(-redcap_event_name)
 # Y (MoCA Score) ~ fct1 (pac_pay_attention) + fct2 (pac_remember) + fct3 (bdi_indecisiveness) + fct4(pac_concentrate) 
 
 #Model 2: understanding factors as related to cognitive impairment compared to moca scores
@@ -1346,7 +1347,7 @@ oneattime <- Moca_unplanned_aug %>%
 
 firstone <- Moca_unplanned_aug %>%
   filter(.rownames != 30) %>%
-  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
+
 
 Moca_first <- lm(firstone,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
@@ -1355,7 +1356,7 @@ secondone <- Moca_unplanned_aug %>%
   filter(.rownames != 88) %>%
   select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
 
-Moca_second <- lm(secondone,
+Moca_second <- lm(secondone,  select(Moca_Score, Flanker_test, Pic_Seq_Mem_Test)
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 
 thirdone <- Moca_unplanned_aug %>% 
