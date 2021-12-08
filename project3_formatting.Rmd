@@ -57,14 +57,17 @@ tidy_dataset <- dataset %>%
          Moca_Score = as.numeric(Moca_Score),
          Age = as.numeric(Age)
   ) %>%
+  mutate(R_Parahippo_vol = as.numeric(R_Parahippo_vol),
+         L_Parahippo_vol = as.numeric(L_Parahippo_vol),
+         Est_Tot_intra_cranial_vol = as.numeric(Est_Tot_intra_cranial_vol)) %>%
   mutate(Education_Level = fct_collapse(Education_Level,
-      "High School" = c("2"),
-      "Associate's" = c("3"),
-      "Bachelor's" = c("4"),
-      "Master's" = c("5"),
-      "Doctorate or Professional" = c("6")), 
-      .after = Education_Level)
-         
+                                        "High School" = c("2"),
+                                        "Associate's" = c("3"),
+                                        "Bachelor's" = c("4"),
+                                        "Master's" = c("5"),
+                                        "Doctorate or Professional" = c("6")), 
+         .after = Education_Level)
+
 Project3_theme <- function() {
   theme(axis.line = element_line(size=0.7, colour="#0006FD"),
         axis.ticks = element_line(size = 0.6, colour="#0006FD"),       
