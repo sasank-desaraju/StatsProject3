@@ -193,13 +193,15 @@ ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_La
 ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education_Level, y = Flanker_test,
                                     color = Education_Level)) +
   geom_boxplot(show.legend = FALSE) +
-  geom_jitter(alpha= 0.6)+
+  geom_jitter(show.legend = FALSE, alpha= 0.6)+
   stat_summary(fun.data = mean_se, color = "black") +
+  scale_x_discrete(labels=c("High School","Associate's","Bachelor's","Master's","Doctorate/Professional")) +
   xlab("Highest Academic Degree") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Highest Academic Degree vs. Flanker's Test") + 
   theme_bw()+
-  Project3_theme()
+  Project3_theme() +
+  theme(axis.text.x = element_text(size=10))
 ```
 \emph{Figure (Highest Academic Degree vs. Flanker's Test): The boxplots can be visually observed to suggest that the degree of education do not have a significant effect on the unadjusted Flanker's test scores of participants. Specifically, the means of each boxplot are relatively similar and do not deviate much from each other.}
 
