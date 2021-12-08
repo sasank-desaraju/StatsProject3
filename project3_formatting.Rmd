@@ -388,8 +388,9 @@ ggplot(drop_na(hypo_two_dataset,Age,Pic_Seq_Mem_Test), aes(x = Age,
 ```{r}
 #Musical Practice vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musical_Practice, y = Pic_Seq_Mem_Test,                                 color=factor(Musical_Practice,labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")))) +
-  geom_boxplot(show.legend = FALSE) +
-  #stat_summary(fun.data = mean_se, color = "black") +
+  geom_boxplot(show.legend = FALSE, outlier.shape=NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Blank","<1 hr","1-2.5 hr","3-4.5 hr","5-6.5 hr")) +
   xlab("Musical Practice") +
   ylab("Picture Sequence Memory Test Score") +
@@ -404,7 +405,7 @@ ggplot(drop_na(hypo_two_dataset,Musical_Practice,Pic_Seq_Mem_Test), aes(x = Musi
 #Second Language vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Second_Language, y = Pic_Seq_Mem_Test,
                                     color = Second_Language)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
   stat_summary(fun.data = mean_se, color = "green") +
   geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
   xlab("Second Language") +
@@ -419,7 +420,8 @@ ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Secon
 #Education Level vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Education_Level,Pic_Seq_Mem_Test), aes(x = Education_Level, y = Pic_Seq_Mem_Test,
                                     color = Education_Level)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape= NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun.data = mean_se, color = "black") +
   scale_x_discrete(labels=c("High School","Associate's","Bachelor's","Master's","Doctorate/Professional")) +
   xlab("Education Level") +
@@ -448,7 +450,9 @@ ggplot(drop_na(hypo_two_dataset,Parahippo_vol,Pic_Seq_Mem_Test), aes(x = Parahip
 #Ability to Remember vs. Picture Sequence Memory Test
 ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Remembering, y = Pic_Seq_Mem_Test,
                                     color = Remembering)) +
-  geom_boxplot(show.legend = FALSE) +
+  geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
+  geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
+  stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
   xlab("Ability to Remember Things as Easily as Usual") +
   ylab("Picture Sequence Memory Test Score") +
