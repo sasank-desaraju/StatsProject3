@@ -488,20 +488,31 @@ Model 1 (Full Model): Anova (type 2) test
 * A large degree of the model's variance is attributed to the Age variable.
 
 ```{r}
-# Create alternative model with non statistically significant variables removed from model, for comparison with original model
-hypo2_model_2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol )
-kable(tidy(hypo2_model_2), digits = 3)
-kable(tidy(Anova(hypo2_model_2, type = 2, alpha = 0.05)), digits = 3)
+#We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
+invisible(drop1(hypo2_model))
+#Dropping Musical_Practice gives best improvement to AIC, therefore dropped
+hypo2_model_dropped1 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Second_Language + Parahippo_vol + Remembering)
 
-# Compare original and alternative models
-kable(AIC(hypo2_model, hypo2_model_2))
+invisible(drop1(hypo2_model_dropped1))
+#Dropping Remembering gives best improvement to AIC, therefore dropped
+hypo2_model_dropped2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Second_Language + Parahippo_vol)
+
+invisible(drop1(hypo2_model_dropped2))
+#Dropping Education_Level gives best improvement to AIC, therefore dropped
+hypo2_model_dropped3 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
+
+drop1(hypo2_model_dropped3)
+#Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
+
+#Anova of new model
+kable(tidy(hypo2_model_dropped3), digits = 3)
+kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3)
 ```
+
 Model 2 (Education Level, Musical Practice, and Remembering): Anova (type 2) test
 * The Parahippocampal Volume term is now insignificant (p-value >> alpha = 0.05).
 * The Age and Second Language terms remain significant in this new model.
 * A large degree of the model's variance is attributed to both Age and Second Language variables, with Parahippocampal volume representing much less.
-
-The original model has lower AIC value, therefore is a 'better' model according to this measure.
 
 ```{r}
 # Model diagnostics plotting
