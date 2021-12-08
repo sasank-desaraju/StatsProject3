@@ -205,10 +205,16 @@ ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education
 
 ```{r}
 #Keep Track of Current Tasks vs. Flanker's Test
+<<<<<<< Updated upstream
 ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Activity, y = Flanker_test,
                                                                   color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
   geom_jitter(height = 0, alpha = 0.6)+
+=======
+ggplot(data = hypo_one_dataset, aes(x = Track_Activity, y = Flanker_test,
+                                    color = Track_Activity)) +
+  geom_boxplot(show.legend = FALSE)  +
+>>>>>>> Stashed changes
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Keep Track of Current Tasks vs. Flanker's Test")+
@@ -268,6 +274,10 @@ kable(AIC(hypo1_model_1, hypo1_model_2, hypo1_model_3))
 
 
 ```{r}
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 hypo1_model_3_aug <- augment(hypo1_model_3)
 
 # Plot the std. residuals against the fitted values.
@@ -309,16 +319,49 @@ hypo1_model_3_aug %>%
   geom_vline(xintercept = 2 * hat_avg_model_3, linetype = 2, color="orange")+
   geom_vline(xintercept = 3 * hat_avg_model_3, linetype = 2, color="red")+
   geom_hline(yintercept = c(-2, 2), linetype = 2)+
+<<<<<<< Updated upstream
   geom_text(aes(label=if_else(.cooksd>=3*mean(.cooksd) & .hat>= 2*avg_hatMoca,
                               # 3*(average Cooks Distance) and .hat>= 2*avg_hatMoca are general rules of thumb for highlighting potential outliers,
                               paste0("(",Education_Level, ", ", Flanker_test, ")"), "")), nudge_y = 0.2, nudge_x = 0.005, size=2.5)+
+=======
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*hat_avg_model_3), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
+>>>>>>> Stashed changes
   labs(title = "Cooks Distance for Hypothesis One Model")+
   theme_bw() +
   Project3_theme()
   
 ```
 \textbf{Cooks Distance Plot: }
+<<<<<<< Updated upstream
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we do not see any points that pass that threshold. Visually inspecting the graph, while numerous points have high leverage, there are not any points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. For these reasons, we did not identify and remove any outliers from this dataset.
+=======
+* Using the general rule of thumb for highlighting outliers of 3*(average Cooks Distance), we do see points that pass that threshold. The points have high leverage and influence based on having a high .hat value past 3 times the average cooks distance (leverage), along with being approximately two standard deviations away from zero.
+* The following points are then removed (Education_Level, Flankers_test): (3, 126.63), (3, 126.01), (3, 91.46), and (3, 81) 
+
+```{r Cooks Flankers Removal}
+new_hypo1_data <- hypo1_model_3_aug %>%
+  filter(.cooksd<=3*mean(.cooksd) & .hat<= 2 * hat_avg_model_3) %>%
+  select(Flanker_test, Age, Education_Level)
+
+new_hypo1_model <- lm(new_hypo1_data, formula = Flanker_test ~ Age + Education_Level)
+new_hypo1_model_aug <- augment(new_hypo1_model)
+new_hat = (2+1)/nrow(new_hypo1_model_aug) 
+
+#Cooks Distance:
+new_hypo1_model_aug %>% 
+  ggplot( aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = new_hat, linetype = 2)+
+  geom_vline(xintercept = 2 * new_hat, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * new_hat, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else((.cooksd>=3*mean(.cooksd) & .hat>= 2*new_hat), paste0("(", Education_Level, ", ", .cooksd,")"),'')),  nudge_y = 0.2, nudge_x = 0.005, size=2.5) +
+  labs(title = "Cooks Distance for Hypothesis One Model")+
+  theme_bw() +
+  Project3_theme()
+  
+```
+>>>>>>> Stashed changes
 
 ### Discussion:
 
