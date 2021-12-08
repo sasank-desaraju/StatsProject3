@@ -894,18 +894,377 @@ ggplot(Moca_newremove_aug, aes(sample=.std.resid))+
 
 *Planned exploratory analysis*
 
+### A Priori
+
+TODO: Do A Priori
+
+We sought to explore the relationship of short term memory and parahippocampal brain volume. The parahippocampus (PHC) is a brain region associated in literature with short-term memory formation and recall. The Picture Sequence Memory Test (PSM Test) was predicted by PHC volume, expressed as volume normed by total brain volume, along with covariates including age, musical practice, second language presence, and education level.
+
 ### Data Visualization
+
+```{r vol-data-carpentry}
+volume_dataset <- exp_dataset %>%
+  rename(Music = Musical_Practice,
+         Pic = Pic_Seq_Mem_Test,
+         Education = Education_Level,
+         Sec_Lang = Second_Language,
+         R_PHC = R_Parahippo_vol,
+         L_PHC = L_Parahippo_vol,
+         Tot_Vol = Est_Tot_intra_cranial_vol) %>%
+  mutate(Education = fct_collapse(Education,
+      "High School" = c("2", "High School", "HS"),
+      "Associate's" = c("3", "Assoc."),
+      "Bachelor's" = c("4", "Bach","Bachelor's"),
+      "Master's" = c("5", "Masters", "Master's", "Master"),
+      "Doctorate or Professional" = c("6", "Doctor")), 
+      .after = Education) %>%
+  mutate(Tot_PHC_normed = (R_PHC + L_PHC) / Tot_Vol) %>%
+  mutate(Music = if_else(is.na(Music), 0, as.numeric(Music)))
+```
+
+    TODO: raw data plots, raw + summary
+    
+```{r vol-basic-vizualization}
+# Age
+plt_vol_age <- ggplot(volume_dataset, aes(Age, Pic)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
+  labs(
+    title = 'Age',
+    y = 'PSM Test'
+  )
+
+# Music
+plt_vol_music <- ggplot(volume_dataset, aes(Music, Pic)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
+  labs(
+    title = 'Musical Practice',
+    y = 'PSM Test'
+  )
+
+
+# PHC volume
+plt_vol_phc <- ggplot(volume_dataset, aes(Tot_PHC_normed, Pic)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
+  labs(
+    title = 'PHC Volume',
+    y = 'PSM Test'
+  )
+
+
+# Second Language
+plt_vol_sec_lang <- ggplot(volume_dataset, aes(Sec_Lang, Pic)) +
+  geom_boxplot() +
+  geom_jitter(height = 0) +
+  labs(
+    title = 'Second Lanuage Presence',
+    y = 'PSM Test'
+  )
+
+# Education
+plt_vol_education <- ggplot(volume_dataset, aes(Education, Pic)) +
+  geom_boxplot() +
+  geom_jitter(height = 0) +
+  labs(
+    title = 'Education Level',
+    y = 'PSM Test'
+  )
+
+# Age with Education
+plt_vol_age_edu <- ggplot(volume_dataset, aes(Age, Pic, color = Education)) +
+  geom_jitter() +
+  geom_smooth(method = lm , formula = y ~ x, se = FALSE) +
+  labs(
+    title = 'Age and Education',
+    y = 'PSM Test'
+  )
+```
+
+Initial visualization highlighted some trends that will be explored. Memory tends to decline with age, with agrees with common theories of age-related cognitive decline. Memory tends to increase with brain volume, which is reasonable if the PHC has an important role in memory. Finally, memory also increased with second language presence, providing weight to theories that emphasize the role of language acquisition in more general cognitive abilities. The plots for the discussed trends are below and other plots are provided in the Supplemental section.
+
+```{r}
+plt_vol_age
+plt_vol_phc
+plt_vol_sec_lang
+```
 
 ### Initial Model Analysis
 
+```{r volume-model-no-ints}
+full_vol_model_no_int <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education)
+
+tbl_vol_full_mod_no_ints <- kable(tidy(Anova(full_vol_model_no_int)),
+                                  caption = 'PSM Test Model with No Interactions')
+#tbl_vol_full_mod_no_ints
+#glance(full_vol_model_no_int)
+```
+
+The initial model was constructed using only the main effects of the 5 predictors. The Type II ANOVA below shows that age, PHC volume, and second language status are significant to a p value of 0.05.
+
+```{r}
+tbl_vol_full_mod_no_ints
+```
+
 ### Residual and Outlier Analysis
+    TODO: raw + model, leverage, QQ, Cook's distance, residual vs. fitted, residual vs. each variable
+
+```{r vol-orig-model-diagnostics}
+
+full_vol_model_no_int_aug <- augment(full_vol_model_no_int)
+
+# raw and model
+
+
+# qq plot
+plt_vol_qq <- ggplot(full_vol_model_no_int_aug, aes(sample = .std.resid, color = 'red')) +
+  stat_qq() +
+  stat_qq_line() +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  labs(
+    caption = 'Dotted line shows y = x'
+  )
+
+# hat values
+plt_vol_hat_std <- ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid))+
+  geom_point()+
+  # Line marking average hat value
+  geom_vline(xintercept = (5+1)/99, linetype = 2)+
+  # Line marking 2*average hat value
+  geom_vline(xintercept = 2 * (5+1)/99, linetype = 2, color="orange")+
+  # Line marking 3*average hat value
+  geom_vline(xintercept = 3 * (5+1)/99, linetype = 2, color="red")+
+  labs(
+    caption = 'Lines represent the first 3 multiples of average .hat values'
+  ) +
+  theme_bw()
+
+plt_vol_hat <- ggplot(full_vol_model_no_int_aug, aes(.hat, .resid))+
+  geom_point()+
+  # Line marking average hat value
+  geom_vline(xintercept = (5+1)/99, linetype = 2)+
+  # Line marking 2*average hat value
+  geom_vline(xintercept = 2 * (5+1)/99, linetype = 2, color="orange")+
+  # Line marking 3*average hat value
+  geom_vline(xintercept = 3 * (5+1)/99, linetype = 2, color="red")+
+  labs(
+    caption = 'Lines represent the first 3 multiples of average .hat values'
+  ) +
+  theme_bw()
+
+# cooks.d
+plt_vol_cooksd_std <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .std.resid))+
+  geom_point()+
+  # Line marking average cooksd value
+  geom_vline(xintercept = 4 / (99), linetype = 2)+
+  # Line marking 2*average cooksd value
+  #geom_vline(xintercept = 2 / sqrt(99), linetype = 2, color="orange")+
+  labs(
+    caption = 'Line represents critical Cook\'s Distance'
+  ) +
+  theme_bw()
+
+plt_vol_cooksd <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .resid))+
+  geom_point()+
+  # Line marking average cooksd value
+  geom_vline(xintercept = 4 / (99), linetype = 2)+
+  # Line marking 2*average cooksd value
+  #geom_vline(xintercept = 2 / sqrt(99), linetype = 2, color="orange")++
+  labs(
+    caption = 'Line represents critical Cook\'s Distance'
+  ) +
+  theme_bw()
+
+# leverage and cooks.d
+ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid, size=.cooksd))+
+  geom_point(shape = 1)+
+  geom_vline(xintercept = (5+1)/99, linetype = 2)+
+  geom_vline(xintercept = 2 * (5+1)/99, linetype = 2, color="orange")+
+  geom_vline(xintercept = 3 * (5+1)/99, linetype = 2, color="red")+
+  geom_hline(yintercept = c(-2, 2), linetype = 2)+
+  geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >= 3 * mean(.hat), paste0("(", Age, ", ", Pic,")"),'')), nudge_y = 0.2, size=3)+
+  theme_bw()
+
+# geom_text(aes(label=if_else(.cooksd>=(3 * mean(.cooksd)) | .hat >=3 * avg_hatMoca, paste0("(", Flanker_test, ", ", Moca_Score,")"),'')), nudge_y = 0.2, size=3)
+
+# geom_text(aes(label=if_else(.std.resid >= 1 | .std.resid <= -1 | .hat >=3 * avg_hat, paste0("(", ", ", round(BOLD, digits = 2),")"),'0')), nudge_y = 0.2, size=4)
+
+# resid. vs fitted
+plt_vol_stdres_fitted <- ggplot(full_vol_model_no_int_aug, aes(.fitted, .std.resid)) +
+  geom_point()
+
+# resid vs age
+plt_vol_stdres_age <- ggplot(full_vol_model_no_int_aug, aes(Age, .std.resid)) +
+  geom_point()
+
+# resid vs PHC
+plt_vol_stdres_phc <- ggplot(full_vol_model_no_int_aug, aes(Tot_PHC_normed, .std.resid)) +
+  geom_point()
+
+# resid vs music
+plt_vol_stdres_music <- ggplot(full_vol_model_no_int_aug, aes(Music, .std.resid)) +
+  geom_jitter(height = 0)
+
+# resid vs second lang
+plt_vol_stdres_sec_lang <- ggplot(full_vol_model_no_int_aug, aes(Sec_Lang, .std.resid)) +
+  geom_jitter(height = 0) +
+  stat_summary()
+
+# resid vs education
+plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .std.resid)) +
+  geom_jitter(height = 0) +
+  stat_summary()
+
+
+# plt_vol_qq
+# plt_vol_hat_std
+# plt_vol_cooksd_std
+# plt_vol_stdres_fitted
+# plt_vol_stdres_age
+# plt_vol_stdres_phc
+# plt_vol_stdres_music
+# plt_vol_stdres_sec_lang
+# plt_vol_stdres_education
+
+
+```
+
+Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
+
+```{r}
+plt_vol_hat_std
+plt_vol_cooksd_std
+```
+
+There are three points with a leverage value greater than three times the average value. None of the residuals are greater than two standard deviations from zero, however, so these points were accepted. The Cook's Distance plot shows three plots with anomalously large Cook's Distances. These points were eliminated from the model due to their strong skew on the model. Other diagnostic plots are shown in the Supplemental section.
 
 ### Subsequent models
 
+```{r vol-sub-models}
+vol_data_out <- full_vol_model_no_int_aug %>%
+  filter(.cooksd < 0.06)
+
+full_vol_model_no_int_out <- lm(vol_data_out, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education)
+
+tbl_vol_full_mod_no_ints_out <- kable(tidy(Anova(full_vol_model_no_int_out)),
+                                  caption = 'Original PSM Test Model with Outliers Removed')
+#tbl_vol_full_mod_no_ints_out
+#glance(full_vol_model_no_int)
+
+
+
+# vol_int_1 <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
+# 
+# tidy(Anova(vol_int_1))
+# glance(vol_int_1)
+# 
+# 
+# vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
+# 
+# tidy(Anova(vol_int_2))
+# glance(vol_int_2)
+# 
+# vol_int_3 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+# 
+# tidy(Anova(vol_int_3))
+# glance(vol_int_3)
+# 
+# vol_int_4 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang + Age:Tot_PHC_normed:Education)
+# 
+# tidy(Anova(vol_int_4))
+# glance(vol_int_4)
+# 
+# vol_int_5 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+# 
+# tidy(Anova(vol_int_5))
+# glance(vol_int_5)
+# 
+# vol_int_6 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Sec_Lang)
+# 
+# tidy(Anova(vol_int_6))
+# glance(vol_int_6)
+
+
+
+
+
+vol_int_1 <- lm(vol_data_out, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
+
+vol_int_2 <- lm(volume_dataset, formula = Pic ~ Age*Music*Tot_PHC_normed*Sec_Lang*Education)
+
+vol_int_3 <- lm(volume_dataset, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Education + Age:Tot_PHC_normed:Education)
+
+vol_int_4 <- lm(vol_data_out, formula = Pic ~ Age + Tot_PHC_normed + Sec_Lang + Age:Tot_PHC_normed + Tot_PHC_normed:Sec_Lang + Age:Sec_Lang)
+
+glance(vol_int_4)
+
+
+tbl_vol_comp_models <- kable(tibble(Model = c('Main effects only','Main effects and second order interactions of significant main effects','All effects', 'Main effects and Age-PHC-Education interaction', 'Age, PHC, Second Language, and their second order interactions'),
+       R_Squared = c(glance(full_pic_model_no_int)$r.squared,glance(vol_int_1)$r.squared,glance(vol_int_2)$r.squared,glance(vol_int_3)$r.squared,glance(vol_int_4)$r.squared),
+       AIC = c(glance(full_pic_model_no_int)$AIC,glance(vol_int_1)$AIC,glance(vol_int_2)$AIC,glance(vol_int_3)$AIC,glance(vol_int_4)$AIC)),
+       caption = 'Comaprison of Different Models')
+
+
+tbl_vol_full_mod_no_ints1 <- kable(tidy(Anova(full_vol_model_no_int)),
+                                  caption = 'Main Effect Model with Outliers INCLUDED')
+
+tbl_vol_full_mod_no_ints_out1 <- kable(tidy(Anova(full_vol_model_no_int_out)),
+                                  caption = 'Main Effect Model with Outliers REMOVED')
+
+tbl_vol_comp_out <- kable(tibble(Outliers = c('In', 'Out'),
+                                 R_Squared = c(glance(full_vol_model_no_int)$r.squared, glance(full_vol_model_no_int_out)$r.squared)),
+                          caption = 'R Squared change due to Outliers')
+
+```
+
+The main effect model was recreated with the data with outliers removed. For convenience, the type II ANOVA tables for both models are produced below along with the change in R Squared.
+
+```{r}
+tbl_vol_full_mod_no_ints1
+tbl_vol_full_mod_no_ints_out1
+tbl_vol_comp_out
+```
+
+Although the removal of outliers did not change the significance of any of the terms, it changed the p values of the terms. Additionally, there was a modest decrease in R Squared due to the removal of the outliers.
+
+Variations of the model were created, and their results are shown in the following table.
+
+```{r}
+tbl_vol_comp_models
+```
+
+Addition of interaction terms tended to increase the R Squared, capturing more of the variation in the data. However, AIC was used to capture the negative effect of adding more terms. The two tested models to achieve a lower AIC than the model without interactions were the ones that contained only the second order interactions of the three factors that were significant in the main effect model: age, PHC volume, and second language presence. Removing the main effects of music and education actually lowered the AIC, though it also lowered R Squared. The type II ANOVA table for this model is below. The PHC volume is not significant in this model.
+
+```{r}
+tbl_vol_best_model <- kable(tidy(Anova(vol_int_4)),
+                            caption = 'ANOVA table of the Model with Lowest AIC')
+tbl_vol_best_model
+```
+
 ### Discussion
+
+A model predicting PSM Test score using a general linear model predicted by age, PHC volume, second language presence, and their second order interactions outcompeted other models using the AIC metric. In this model, PHC volume is not a significant main effect, casting doubt on theories of the importanec of the PHC in memory tasks. However, larger that captured more of the variation in the data attribute statistical significance to the effect of PHC volume. Nevertheless, age and second language presence are important covariance that will likely prove useful in similar future analyses.
 
 *Unplanned exploratory analysis*
 
 ### Accounting for effects
 
+Further
+
+### Hemispheric Contributions of PHC Volume
+
 # Supplemental Tables and Figures
+
+## Parahippocampal Volume and Memory
+
+### Basic Visualization
+
+```{r}
+plt_vol_age
+plt_vol_music
+plt_vol_phc
+plt_vol_sec_lang
+plt_vol_education
+plt_vol_age_edu
+```
