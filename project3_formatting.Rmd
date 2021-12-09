@@ -223,8 +223,8 @@ testerdata <- hypo_one_dataset %>%
 hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
 
 #Analysis and Comparison
-kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 1")
-kable(tidy(hypo1_model_1), digits = 3,caption = "T-test for Hypothesis 1 Model 1")
+kable(tidy(hypo1_model_1), digits = 3)
+kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 ```{r}
@@ -235,10 +235,8 @@ invisible(drop1(hypo1_model_1))
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 
 hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
-
-kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 2")
-kable(tidy(hypo1_model_2), digits = 3,caption = "T-test for Hypothesis 1 Model 2")
-
+kable(tidy(hypo1_model_2), digits = 3)
+kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \textbf{Model 2 (Musical Practice Removed): Anova (type 2) test}
@@ -261,8 +259,8 @@ invisible(drop1(hypo1_model_3))
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
-kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 3")
-kable(tidy(hypo1_model_3), digits = 3, caption = "T-test for Hypothesis 1 Model 3")
+kable(tidy(hypo1_model_3), digits = 3)
+kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \textbf{Model 3 (Musical Practice and Education Level Removed): Anova (type 2) test}
@@ -334,10 +332,8 @@ new_hypo1_data <- hypo1_model_3_aug %>%
   select(Flanker_test, Age, Track_Activity, Second_Language)
 
 new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
-
-kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for model with removed outliers")
-kable(tidy(new_hypo1_model),caption = "T-test for model with removed outliers")
-
+kable(tidy(new_hypo1_model))
+kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
@@ -507,8 +503,8 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
 # Original Hypothesis Two model generation
 hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
 
-kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 2 Model 1")
-kable(tidy(hypo2_model), digits = 3,caption = "T-test for Hypothesis 2 Model 1")
+kable(tidy(hypo2_model), digits = 3)
+kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \textbf{Model 1 (Full Model): Anova (type 2) test}
@@ -533,13 +529,12 @@ invisible(drop1(hypo2_model_dropped2))
 #Dropping Education_Level gives best improvement to AIC, therefore dropped
 hypo2_model_dropped3 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
 
-drop1(hypo2_model_dropped3)
+kable(tidy(drop1(hypo2_model_dropped3)), digits = 3, caption = "AIC comparison for 'drop1' function")
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
-
-kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3,caption ="Anova for Hypothesis 2 Outliers Removed")
-kable(tidy(hypo2_model_dropped3), digits = 3,caption ="T-test for Hypothesis 2 Outliers Removed")
+kable(tidy(hypo2_model_dropped3), digits = 3)
+kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3)
 ```
 
 \textbf{Model 2 (Education Level, Musical Practice, and Remembering): Anova (type 2) test}
@@ -610,7 +605,7 @@ hypo2_model_ave_hat = (3+1)/nrow(drop_na(hypo2_model_aug))
   Project3_theme()
 ```
 
-\emph{Cooks Distance Plot:} 
+\emph{Cooks Distance Plot: } 
 
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we see one point that passes that threshold. To identify the points, they were marked by their .rownames identifier created via augment() and their rounded .cooksd value  in black text. Visually inspecting the graph, while numerous points have high leverage, there are few points with notably inordinate influence (as represented by Cooks Distance) relative to the bulk of other data points. Two data points are particularly notable for their comparatively large Cook's Distance, seen in the upper portion of the plot. These points were manually marked by their .rownames identifier created via augment() and their rounded .cooksd value also, though in purple text to distinguish them. For these reasons, the three total points mentioned were labelled as outliers and removed. Additional graphing is available in the Supplemental section for Hypothesis Two at the end of this document.
 
@@ -728,7 +723,7 @@ Mocamod <- lm(MoCA_dropna,
               formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
 
 kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
-kable(tidy(Mocamod), caption = "T-test for Exploratory Question 1")
+kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
 ```
 
 ### \emph{Model 1 Interpretation:}
@@ -799,7 +794,6 @@ Moca_unplanned_mod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
 kable(Anova(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
 kable(tidy(Moca_unplanned_mod),caption = "Anova for Main Effects Only\n Unplanned ")
-kable(glance(Moca_unplanned_mod))
 ```
 
 ### \emph{Model Excluding Age Interpretation:}
@@ -816,8 +810,8 @@ $$\begin{aligned}
 #Age Model, No interactions
 Moca_unplanned_agemod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Age + Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_agemod),caption = "Anova for New Moca Model\n Age Included")
-kable(tidy(Moca_unplanned_agemod),caption = "T-test for New Moca Model\n Age Included")
+kable(Anova(Moca_unplanned_agemod))
+kable(tidy(Moca_unplanned_agemod))
 kable(glance(Moca_unplanned_agemod))
 ```
 
@@ -836,8 +830,8 @@ $$\begin{aligned}
 Moca_unplanned_ageintmod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Age + Flanker_test + 
                            Pic_Seq_Mem_Test + Age:Flanker_test + Age:Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_ageintmod),caption = "Anova for New Moca Model\n Age and Interactions Included")
-kable(tidy(Moca_unplanned_ageintmod,caption = "T-test for New Moca Model\n Age and Interactions Included"))
+kable(Anova(Moca_unplanned_ageintmod))
+kable(tidy(Moca_unplanned_ageintmod))
 #kable(glance(Moca_unplanned_ageintmod))
 ```
 
@@ -845,7 +839,7 @@ kable(tidy(Moca_unplanned_ageintmod,caption = "T-test for New Moca Model\n Age a
 This model includes interactions with age to see if it also factors into predicting moca scores. According to the Anova table, age does not interact with the other predictors and actually renders the one significant lower order relative insignificant as well.
 
 ```{r Compare Mod,echo=FALSE}
-kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod), caption = "Comparing Models with Different Factors")
+kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
 
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
 invisible(drop1(Moca_unplanned_ageintmod))
@@ -856,10 +850,10 @@ Moca_unplanned_ageintmod_dropped1 <- lm(Moca_unplanned,
                                         formula = Moca_Score ~ Age + Flanker_test + 
                                           Pic_Seq_Mem_Test + Age:Flanker_test)
 
-kable(drop1(Moca_unplanned_ageintmod_dropped1),caption = "Test if factor needs to be dropped")
+kable(drop1(Moca_unplanned_ageintmod_dropped1))
 
 
-kable(AIC(Moca_unplanned_ageintmod_dropped1,Moca_unplanned_mod),caption = "Compare Original Model with\n Drop1 Model")
+kable(AIC(Moca_unplanned_ageintmod_dropped1,Moca_unplanned_mod))
 ```
 
 ### \emph{Moca Model Comparisons:}
@@ -894,11 +888,11 @@ Moca_unplanned_aug %>%
   Project3_theme()
 ```
 
-\emph{Cooks Distance Plot:}
+\emph{Cooks Distance Plot:
 
 * Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks Distance value as well as > 2 * (average hat value) for .hat value, we note three different points that pass that threshold. These points are emphasized by listing their Flanker's test scores. As such, we identified these points as outliers and removed them from our model.
 
-* In the supplements, you can see three cook's plots that show each point above dropped one at a time. In each plot, the two points that were not dropped were still identified as outliers, justifying the removal of all points. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.
+* In the supplements, you can see three cook's plots that show each point above dropped one at a time. In each plot, the two points that were not dropped were still identified as outliers, justifying the removal of all points. Also, in an AIC comparison also included in the supplementary tables and figures you can see that the value dropped by approximately the same amount for each model that excluded one of the points, showing that they equally improve the model by being removed.}
 
 ### New Moca Model with outliers removed:
 
@@ -909,8 +903,8 @@ newMoca_unplanned <- Moca_unplanned_aug %>%
 
 Moca_newremove_mod <- lm(newMoca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_newremove_mod),caption = "Anova for Moca model:\n Outliers Removed")
-kable(tidy(Moca_newremove_mod),caption = "T-test for Moca model:\n Outliers Removed")
+kable(Anova(Moca_newremove_mod))
+kable(tidy(Moca_newremove_mod))
 ```
 
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
@@ -1051,7 +1045,7 @@ plt_vol_sec_lang
 full_vol_model_no_int <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education)
 
 tbl_vol_full_mod_no_ints <- kable(tidy(Anova(full_vol_model_no_int)),
-                                  caption = 'Anova for PSM Test Model \nwith No Interactions')
+                                  caption = 'PSM Test Model with No Interactions')
 #tbl_vol_full_mod_no_ints
 #glance(full_vol_model_no_int)
 ```
@@ -1089,9 +1083,6 @@ plt_vol_hat_std <- ggplot(full_vol_model_no_int_aug, aes(.hat, .std.resid))+
   geom_vline(xintercept = 2 * (5+1)/99, linetype = 2, color="orange")+
   # Line marking 3*average hat value
   geom_vline(xintercept = 3 * (5+1)/99, linetype = 2, color="red")+
-  labs(
-    caption = 'Lines represent the first 3 multiples of average .hat values'
-  ) +
   theme_bw()+
   Project3_theme()
 
@@ -1116,9 +1107,6 @@ plt_vol_cooksd_std <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .std.resid)
   geom_vline(xintercept = 4 / (99), linetype = 2)+
   # Line marking 2*average cooksd value
   #geom_vline(xintercept = 2 / sqrt(99), linetype = 2, color="orange")+
-  labs(
-    caption = 'Line represents critical Cook\'s Distance'
-  ) +
   theme_bw()+
   Project3_theme()
 
@@ -1127,10 +1115,7 @@ plt_vol_cooksd <- ggplot(full_vol_model_no_int_aug, aes(.cooksd, .resid))+
   # Line marking average cooksd value
   geom_vline(xintercept = 4 / (99), linetype = 2)+
   # Line marking 2*average cooksd value
-  #geom_vline(xintercept = 2 / sqrt(99), linetype = 2, color="orange")++
-  labs(
-    caption = 'Line represents critical Cook\'s Distance'
-  ) +
+  #geom_vline(xintercept = 2 / sqrt(99), linetype = 2, color="orange")+
   theme_bw()+
   Project3_theme()
 
@@ -1185,13 +1170,23 @@ plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .st
   Project3_theme()
   
 ```
+\emph{Figure (Cooks' Distance): Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks
+Distance value as well as > 2 * (average hat value) for .hat value.}
 
 Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
 
 ```{r}
 plt_vol_hat_std
+
+```
+\emph{Figure (Cook's Distance): Using the general rules of thumb for highlighting outliers of > 3 * (average Cook's Distance) for Cooks
+Distance value as well as > 2 * (average hat value) for .hat value. The lines represent the first three multiples of average .hat values}
+
+```{r}
 plt_vol_cooksd_std
 ```
+\emph{Figure (Cook's Distance): Using the general rules of thumb for highlighting outliers of > 3 * (average Cook's Distance) for Cooks
+Distance value as well as > 2 * (average hat value) for .hat value. The line represents the critical Cook's Distance}
 
 There are three points with a leverage value greater than three times the average value. None of the residuals are greater than two standard deviations from zero, however, so these points were accepted. The Cook's Distance plot shows three plots with anomalously large Cook's Distances. These points were eliminated from the model due to their strong skew on the model. Other diagnostic plots are shown in the Supplemental section.
 
@@ -1613,11 +1608,7 @@ Moca_thirdaug %>%
 
 ### Parahippocampal Volume and Memory
 
-Supplemental plots from
-
-#### Basic Visualization
-
-
+Supplemental plots from the PHC volume and memory section are here.
 
 ```{r}
 
