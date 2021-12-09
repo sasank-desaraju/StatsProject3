@@ -159,7 +159,7 @@ ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_La
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "purple") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8, show.legend = FALSE) +
   xlab("Second Language(s)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Second Language(s) vs. Flanker's Test") + 
@@ -191,7 +191,7 @@ ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education
 ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Activity, y = Flanker_test,
                                                                   color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
-  geom_jitter(height = 0, alpha = 0.6)+
+  geom_jitter(height = 0, alpha = 0.6, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
@@ -395,7 +395,7 @@ Ha: NIH Picture Sequence Memory test scores will be significantly different for 
 #### Statistical Model:
 $$\begin{aligned}
 \hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}?
-\\ + \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
++ \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? \\ + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
 \end{aligned}$$
 
 ### Visualization:
@@ -436,7 +436,7 @@ ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Secon
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
   stat_summary(fun.data = mean_se, color = "green") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8, show.legend = FALSE) +
   xlab("Second Language") +
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Second Language vs. Picture Sequence Memory Test") +
@@ -487,7 +487,7 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
   geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
-  xlab("Ability to Remember Things as Easily as Usual") +
+  xlab("Have you been able to remember things as easily as usual?") +
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Ability to Remember Things as Easily as Usual\n vs. Picture Sequence Memory Test")+
   theme_bw()+
