@@ -502,6 +502,7 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
 ```{r}
 # Original Hypothesis Two model generation
 hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
+
 kable(tidy(hypo2_model), digits = 3)
 kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
 ```
