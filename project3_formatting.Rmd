@@ -1607,11 +1607,7 @@ Moca_thirdaug %>%
 
 ### Parahippocampal Volume and Memory
 
-Supplemental plots from
-
-#### Basic Visualization
-
-
+Supplemental plots from the PHC volume and memory section are here.
 
 ```{r}
 
