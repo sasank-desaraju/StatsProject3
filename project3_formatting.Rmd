@@ -159,7 +159,7 @@ ggplot(drop_na(hypo_one_dataset,Second_Language,Flanker_test), aes(x = Second_La
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE) +
   stat_summary(fun.data = mean_se, color = "purple") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8, show.legend = FALSE) +
   xlab("Second Language(s)") +
   ylab("Flanker's Test Unadjusted Score")  + 
   labs(title = "Second Language(s) vs. Flanker's Test") + 
@@ -191,7 +191,7 @@ ggplot(drop_na(hypo_one_dataset,Education_Level,Flanker_test), aes(x = Education
 ggplot(drop_na(hypo_one_dataset,Track_Activity,Flanker_test), aes(x = Track_Activity, y = Flanker_test,
                                                                   color = Track_Activity)) +
   geom_boxplot(show.legend = FALSE) +
-  geom_jitter(height = 0, alpha = 0.6)+
+  geom_jitter(height = 0, alpha = 0.6, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
   xlab("Keep Track of Current Tasks") +
   ylab("Flanker's Test Unadjusted Score")  + 
@@ -230,7 +230,7 @@ kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
 ```{r}
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
 
-invisible(drop1(hypo1_model_1))
+invis_hypo1_model_2 <- drop1(hypo1_model_1)
 
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 
@@ -248,13 +248,13 @@ kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
 * A large degree of the model's variance is attributed to the age variable.
 
 ```{r}
-invisible(drop1(hypo1_model_2))
+invis_hypo1_model_3 <- drop1(hypo1_model_2)
 
 #Dropping Education Level gives best improvement to AIC, therefore dropped
 
 hypo1_model_3 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
 
-invisible(drop1(hypo1_model_3))
+invis_hypo1_model_4 <- drop1(hypo1_model_3)
 
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
@@ -393,9 +393,10 @@ Ho: The NIH Picture Sequence Memory test scores will not be significantly differ
 Ha: NIH Picture Sequence Memory test scores will be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
 
 #### Statistical Model:
+
 $$\begin{aligned}
 \hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}?
-\\ + \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
++ \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? \\ + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
 \end{aligned}$$
 
 ### Visualization:
@@ -436,7 +437,7 @@ ggplot(drop_na(hypo_two_dataset,Second_Language,Pic_Seq_Mem_Test), aes(x = Secon
                                     color = Second_Language)) +
   geom_boxplot(show.legend = FALSE, outlier.shape = NA) +
   stat_summary(fun.data = mean_se, color = "green") +
-  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8) +
+  geom_dotplot(binaxis = "y",stackdir = "center", binwidth = 0.8, show.legend = FALSE) +
   xlab("Second Language") +
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Second Language vs. Picture Sequence Memory Test") +
@@ -487,7 +488,7 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
   geom_jitter(alpha=0.5, height = 0, show.legend = FALSE)+
   stat_summary(fun = "mean", geom = "point", color = "black") +
   scale_x_discrete(labels=c("Not Answered","A little bit","Somewhat","Quite a bit","Very much")) +
-  xlab("Ability to Remember Things as Easily as Usual") +
+  xlab("Have you been able to remember things as easily as usual?") +
   ylab("Picture Sequence Memory Test Score") +
   labs(title = "Ability to Remember Things as Easily as Usual\n vs. Picture Sequence Memory Test")+
   theme_bw()+
@@ -515,15 +516,15 @@ kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
 
 ```{r}
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
-invisible(drop1(hypo2_model))
+invis_hypo2_model_dropped1 <- drop1(hypo2_model)
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 hypo2_model_dropped1 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Second_Language + Parahippo_vol + Remembering)
 
-invisible(drop1(hypo2_model_dropped1))
+invis_hypo2_model_dropped2 <- drop1(hypo2_model_dropped1)
 #Dropping Remembering gives best improvement to AIC, therefore dropped
 hypo2_model_dropped2 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Second_Language + Parahippo_vol)
 
-invisible(drop1(hypo2_model_dropped2))
+invis_hypo2_model_dropped3 <- drop1(hypo2_model_dropped2)
 #Dropping Education_Level gives best improvement to AIC, therefore dropped
 hypo2_model_dropped3 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
 
@@ -830,7 +831,7 @@ Moca_unplanned_ageintmod <- lm(Moca_unplanned,
                            Pic_Seq_Mem_Test + Age:Flanker_test + Age:Pic_Seq_Mem_Test)
 kable(Anova(Moca_unplanned_ageintmod))
 kable(tidy(Moca_unplanned_ageintmod))
-kable(glance(Moca_unplanned_ageintmod))
+#kable(glance(Moca_unplanned_ageintmod))
 ```
 
 ### \emph{Moca Model Including Age and Interactions Interpretation:}
@@ -840,7 +841,7 @@ This model includes interactions with age to see if it also factors into predict
 kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
 
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
-invisible(drop1(Moca_unplanned_ageintmod))
+invis_Moca_unplanned_ageintmod_dropped1 <- drop1(Moca_unplanned_ageintmod)
 
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 
@@ -1606,13 +1607,19 @@ Moca_thirdaug %>%
 
 ### Parahippocampal Volume and Memory
 
-#### Basic Visualization
+Supplemental plots from the PHC volume and memory section are here.
 
 ```{r}
+
 plt_vol_age
+
 plt_vol_music
+
 plt_vol_phc
+
 plt_vol_sec_lang
+
 plt_vol_education
+
 plt_vol_age_edu
 ```
