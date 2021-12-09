@@ -1171,7 +1171,7 @@ plt_vol_stdres_education <- ggplot(full_vol_model_no_int_aug, aes(Education, .st
   
 ```
 \emph{Figure (Cooks' Distance): Using the general rules of thumb for highlighting outliers of > 3 * (average Cooks Distance) for Cooks
-Distance value as well as > 2 * (average hat value) for .hat value.}
+Distance value as well as > 2 * (average hat value) for .hat value.} 
 
 Model diagnostics were computed on the model to reveal any hidden trends. Diagnostics calculated include a QQ plot, leverage (hat values), Cook's distance, residual vs. fitted, and residual vs. each predictor. The residual distribution on the QQ plot was determined to be sufficiently close to a normal distribution as to not warrant further probing. The leverage and Cook's Distance plots, below, show a few anomalous points.
 
