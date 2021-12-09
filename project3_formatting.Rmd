@@ -223,8 +223,8 @@ testerdata <- hypo_one_dataset %>%
 hypo1_model_1 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level + Musical_Practice)
 
 #Analysis and Comparison
-kable(tidy(hypo1_model_1), digits = 3)
-kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3)
+kable(tidy(Anova(hypo1_model_1, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 1")
+kable(tidy(hypo1_model_1), digits = 3,caption = "T-test for Hypothesis 1 Model 1")
 ```
 
 ```{r}
@@ -235,8 +235,10 @@ invisible(drop1(hypo1_model_1))
 #Dropping Musical_Practice gives best improvement to AIC, therefore dropped
 
 hypo1_model_2 <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language + Education_Level)
-kable(tidy(hypo1_model_2), digits = 3)
-kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3)
+
+kable(tidy(Anova(hypo1_model_2, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 2")
+kable(tidy(hypo1_model_2), digits = 3,caption = "T-test for Hypothesis 1 Model 2")
+
 ```
 
 \textbf{Model 2 (Musical Practice Removed): Anova (type 2) test}
@@ -259,8 +261,8 @@ invisible(drop1(hypo1_model_3))
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
-kable(tidy(hypo1_model_3), digits = 3)
-kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3)
+kable(tidy(Anova(hypo1_model_3, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 1 Model 3")
+kable(tidy(hypo1_model_3), digits = 3, caption = "T-test for Hypothesis 1 Model 3")
 ```
 
 \textbf{Model 3 (Musical Practice and Education Level Removed): Anova (type 2) test}
@@ -332,8 +334,10 @@ new_hypo1_data <- hypo1_model_3_aug %>%
   select(Flanker_test, Age, Track_Activity, Second_Language)
 
 new_hypo1_model <- lm(data = hypo_one_dataset, Flanker_test ~ Track_Activity + Age + Second_Language)
-kable(tidy(new_hypo1_model))
-kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3)
+
+kable(tidy(Anova(new_hypo1_model, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for model with removed outliers")
+kable(tidy(new_hypo1_model),caption = "T-test for model with removed outliers")
+
 ```
 
 \emph{Table Interpretations: The second table that shows an Anova test of the model, only age contributes significantly to the sum of squares regression. A t-test on the model shows that the age and 4th degree of the ability to track activities coefficient is significant and we can conclude that as age and track activity (4th degree) increases the unadjusted Flanker's test score of Participants will decrease. Therefore, the hypothesis is false that musical practice and the ability to speak a second language will have a signficiant effect on increasing Flanker's test scores. However, the hypothesis is validated by the Anova which suggests that a higher ability to track activities without losing concentration is correlated to a higher Flanker's test score.}
@@ -502,8 +506,9 @@ ggplot(drop_na(hypo_two_dataset,Remembering,Pic_Seq_Mem_Test), aes(x = Rememberi
 ```{r}
 # Original Hypothesis Two model generation
 hypo2_model <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Education_Level + Musical_Practice + Second_Language + Parahippo_vol + Remembering)
-kable(tidy(hypo2_model), digits = 3)
-kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3)
+
+kable(tidy(Anova(hypo2_model, type = 2, alpha = 0.05)), digits = 3,caption = "Anova for Hypothesis 2 Model 1")
+kable(tidy(hypo2_model), digits = 3,caption = "T-test for Hypothesis 2 Model 1")
 ```
 
 \textbf{Model 1 (Full Model): Anova (type 2) test}
@@ -532,8 +537,9 @@ drop1(hypo2_model_dropped3)
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
-kable(tidy(hypo2_model_dropped3), digits = 3)
-kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3)
+
+kable(tidy(Anova(hypo2_model_dropped3, type = 2, alpha = 0.05)), digits = 3,caption ="Anova for Hypothesis 2 Outliers Removed")
+kable(tidy(hypo2_model_dropped3), digits = 3,caption ="T-test for Hypothesis 2 Outliers Removed")
 ```
 
 \textbf{Model 2 (Education Level, Musical Practice, and Remembering): Anova (type 2) test}
@@ -722,7 +728,7 @@ Mocamod <- lm(MoCA_dropna,
               formula = Moca_Score ~ Paying_Attention + Remembering + Indecisiveness + Concentration)
 
 kable(Anova(Mocamod),caption = "Anova for Exploratory Question 1")
-kable(tidy(Mocamod), caption = "Anova for Exploratory Question 1")
+kable(tidy(Mocamod), caption = "T-test for Exploratory Question 1")
 ```
 
 ### \emph{Model 1 Interpretation:}
@@ -810,8 +816,8 @@ $$\begin{aligned}
 #Age Model, No interactions
 Moca_unplanned_agemod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Age + Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_agemod))
-kable(tidy(Moca_unplanned_agemod))
+kable(Anova(Moca_unplanned_agemod),caption = "Anova for New Moca Model\n Age Included")
+kable(tidy(Moca_unplanned_agemod),caption = "T-test for New Moca Model\n Age Included")
 kable(glance(Moca_unplanned_agemod))
 ```
 
@@ -830,8 +836,8 @@ $$\begin{aligned}
 Moca_unplanned_ageintmod <- lm(Moca_unplanned,
                          formula = Moca_Score ~ Age + Flanker_test + 
                            Pic_Seq_Mem_Test + Age:Flanker_test + Age:Pic_Seq_Mem_Test)
-kable(Anova(Moca_unplanned_ageintmod))
-kable(tidy(Moca_unplanned_ageintmod))
+kable(Anova(Moca_unplanned_ageintmod),caption = "Anova for New Moca Model\n Age and Interactions Included")
+kable(tidy(Moca_unplanned_ageintmod,caption = "T-test for New Moca Model\n Age and Interactions Included"))
 #kable(glance(Moca_unplanned_ageintmod))
 ```
 
@@ -839,7 +845,7 @@ kable(tidy(Moca_unplanned_ageintmod))
 This model includes interactions with age to see if it also factors into predicting moca scores. According to the Anova table, age does not interact with the other predictors and actually renders the one significant lower order relative insignificant as well.
 
 ```{r Compare Mod,echo=FALSE}
-kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod))
+kable(AIC(Moca_unplanned_mod,Moca_unplanned_agemod,Moca_unplanned_ageintmod), caption = "Comparing Models with Different Factors")
 
 #We use the drop1 function to iteratively produce a more parsimonious model based on comparing AIC. For concision, only the final drop1 output is printed, showing that removed any additional terms would not improve the model, as indicated by AIC comparison
 invisible(drop1(Moca_unplanned_ageintmod))
@@ -850,10 +856,10 @@ Moca_unplanned_ageintmod_dropped1 <- lm(Moca_unplanned,
                                         formula = Moca_Score ~ Age + Flanker_test + 
                                           Pic_Seq_Mem_Test + Age:Flanker_test)
 
-kable(drop1(Moca_unplanned_ageintmod_dropped1))
+kable(drop1(Moca_unplanned_ageintmod_dropped1),caption = "Test if factor needs to be dropped")
 
 
-kable(AIC(Moca_unplanned_ageintmod_dropped1,Moca_unplanned_mod))
+kable(AIC(Moca_unplanned_ageintmod_dropped1,Moca_unplanned_mod),caption = "Compare Original Model with\n Drop1 Model")
 ```
 
 ### \emph{Moca Model Comparisons:}
@@ -903,8 +909,8 @@ newMoca_unplanned <- Moca_unplanned_aug %>%
 
 Moca_newremove_mod <- lm(newMoca_unplanned,
                          formula = Moca_Score ~ Flanker_test + Pic_Seq_Mem_Test)
-kable(Anova(Moca_newremove_mod))
-kable(tidy(Moca_newremove_mod))
+kable(Anova(Moca_newremove_mod),caption = "Anova for Moca model:\n Outliers Removed")
+kable(tidy(Moca_newremove_mod),caption = "T-test for Moca model:\n Outliers Removed")
 ```
 
 \emph{Table Interpretations: In the Anova run in the first table, it shows that both Flanker's test and the Picture Sequence Memory Test significantly contribute to the sum of squares regression. The t test run shows that the coefficients are significant and that we can conclude that both attention (proxied by Flanker's test) and memory (proxied by the picture test) increase with Moca scores. Therefore, people with better memory and attention, things not present in those without mild cognitive impairment, will have higher Moca scores than people with impairments to those functions.}
@@ -1045,7 +1051,7 @@ plt_vol_sec_lang
 full_vol_model_no_int <- lm(volume_dataset, formula = Pic ~ Age + Music + Tot_PHC_normed + Sec_Lang + Education)
 
 tbl_vol_full_mod_no_ints <- kable(tidy(Anova(full_vol_model_no_int)),
-                                  caption = 'PSM Test Model with No Interactions')
+                                  caption = 'Anova for PSM Test Model \nwith No Interactions')
 #tbl_vol_full_mod_no_ints
 #glance(full_vol_model_no_int)
 ```
