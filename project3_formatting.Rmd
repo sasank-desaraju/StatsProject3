@@ -393,6 +393,7 @@ Ho: The NIH Picture Sequence Memory test scores will not be significantly differ
 Ha: NIH Picture Sequence Memory test scores will be significantly different for different behavioral habits and brain volumes, accounting for age and education. 
 
 #### Statistical Model:
+
 $$\begin{aligned}
 \hat{y}_{Pic.Seq.Mem.} = \beta_{Age}X_{Age}? + \beta_{Music}X_{Music}?
 \\ + \beta_{Language}X_{Language}? + \beta_{Education}X_{Education}? + \beta_{PHC}X_{PHC}? + \beta_{Remembering}X_{Remembering}?
@@ -831,7 +832,7 @@ Moca_unplanned_ageintmod <- lm(Moca_unplanned,
                            Pic_Seq_Mem_Test + Age:Flanker_test + Age:Pic_Seq_Mem_Test)
 kable(Anova(Moca_unplanned_ageintmod))
 kable(tidy(Moca_unplanned_ageintmod))
-kable(glance(Moca_unplanned_ageintmod))
+#kable(glance(Moca_unplanned_ageintmod))
 ```
 
 ### \emph{Moca Model Including Age and Interactions Interpretation:}
@@ -1606,13 +1607,23 @@ Moca_thirdaug %>%
 
 ### Parahippocampal Volume and Memory
 
+Supplemental plots from
+
 #### Basic Visualization
 
+
+
 ```{r}
+
 plt_vol_age
+
 plt_vol_music
+
 plt_vol_phc
+
 plt_vol_sec_lang
+
 plt_vol_education
+
 plt_vol_age_edu
 ```
