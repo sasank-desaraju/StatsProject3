@@ -528,7 +528,7 @@ invisible(drop1(hypo2_model_dropped2))
 #Dropping Education_Level gives best improvement to AIC, therefore dropped
 hypo2_model_dropped3 <- lm(data = hypo_two_dataset, formula = Pic_Seq_Mem_Test ~ Age + Second_Language + Parahippo_vol)
 
-drop1(hypo2_model_dropped3)
+kable(tidy(drop1(hypo2_model_dropped3)), digits = 3, caption = "AIC comparison for 'drop1' function")
 #Dropping <none> gives best 'improvement' to AIC, therefore not dropped any more terms.
 
 #Anova of new model
